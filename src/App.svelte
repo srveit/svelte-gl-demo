@@ -1,6 +1,7 @@
 <script>
  import { onMount } from 'svelte';
  import * as GL from '@sveltejs/gl';
+ import Cube from './Cube.svelte';
 
  export let color = '#ff3e00';
  let w = 1;
@@ -51,12 +52,7 @@ scale={10}
 uniforms={{ color: 0xffffff }}
   />
 
-  <GL.Mesh
-    geometry={GL.box()}
-    location={[0,h/2,0]}
-    rotation={[0,-20,0]}
-    scale={[w,h,d]}
-    uniforms={{ color: from_hex(color) }}
+  <Cube
   />
 
   <!-- spheres
@@ -67,12 +63,6 @@ uniforms={{ color: 0xffffff }}
     uniforms={{ color: 0xa8ee56, alpha: 1.0 }}
   />
      -->
-  <GL.Mesh
-    geometry={GL.cylinder({ turns: 26, bands: 1, turns_chord: 0.25 })}
-    location={[-0.5, 1.0, 1.2]}
-    scale={1.0}
-    uniforms={{ color: 0xa8ee56, alpha: 1.0 }}
-  />
   <!-- moving light -->
   <GL.Group location={[light.x,light.y,light.z]}>
 
