@@ -53,12 +53,13 @@ uniforms={{ color: 0xffffff }}
   />
 
   <Cube
+      location={[0, 1.0, 0]}
   />
 
   <!-- spheres
-  <GL.Mesh
-    geometry={GL.sphere({ turns: 26, bands: 26, turns_chord: 0.25, bands_chord: 0.5 })}
-    location={[-0.5, 1.0, 1.2]}
+       <GL.Mesh
+       geometry={GL.sphere({ turns: 26, bands: 26, turns_chord: 0.25, bands_chord: 0.5 })}
+       location={[-0.5, 1.0, 1.2]}
     scale={2.0}
     uniforms={{ color: 0xa8ee56, alpha: 1.0 }}
   />
