@@ -7,6 +7,7 @@
  let w = 1;
  let h = 1;
  let d = 1;
+ let radius = 0.2;
 
  const from_hex = hex => parseInt(hex.slice(1), 16);
 
@@ -45,15 +46,19 @@
 
   <!-- floor -->
   <GL.Mesh
-geometry={GL.plane()}
-location={[0,-0.01,0]}
-rotation={[-90,0,0]}
-scale={10}
-uniforms={{ color: 0xffffff }}
+    geometry={GL.plane()}
+    location={[0,-0.01,0]}
+    rotation={[-90,0,0]}
+    scale={10}
+    uniforms={{ color: 0xffffff }}
   />
 
+
   <Cube
-      location={[0, 1.0, 0]}
+    location={[0, h/2, 0]}
+    scale={[w,h,d]}
+    radius={radius}
+    uniforms={{ color: 0x8080ff, alpha: 1.0 }}
   />
 
   <!-- spheres
