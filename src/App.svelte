@@ -4,10 +4,14 @@
  import Cube from './Cube.svelte';
 
  export let color = '#ff3e00';
+ export let name = 'App';
  let w = 1;
  let h = 1;
  let d = 1;
- let radius = 0.2;
+ let radius = 0.1;
+ let move_light = true;
+ let show_light = true;
+ let light_color = '#80ffff';
 
  const from_hex = hex => parseInt(hex.slice(1), 16);
 
@@ -23,9 +27,11 @@
      const loop = () => {
    frame = requestAnimationFrame(loop);
 
-         /* light.x = 3 * Math.sin(Date.now() * 0.001);
-          * light.y = 2.5 + 2 * Math.sin(Date.now() * 0.0004);
-          * light.z = 3 * Math.cos(Date.now() * 0.002);*/
+         if (move_light) {
+             light.x = 3 * Math.sin(Date.now() * 0.001);
+             light.y = 2.5 + 2 * Math.sin(Date.now() * 0.0004);
+             light.z = 3 * Math.cos(Date.now() * 0.002);
+         }
      };
 
      loop();
@@ -56,25 +62,25 @@
 
   <Cube
     location={[0, h/2, 0]}
+    rotation={[0,20,0]}
     scale={[w,h,d]}
     radius={radius}
-    uniforms={{ color: 0x8080ff, alpha: 1.0 }}
+    uniforms={{ color: from_hex(color), alpha: 1.0 }}
   />
 
-  <!-- spheres
-       <GL.Mesh
-       geometry={GL.sphere({ turns: 26, bands: 26, turns_chord: 0.25, bands_chord: 0.5 })}
-       location={[-0.5, 1.0, 1.2]}
-    scale={2.0}
-    uniforms={{ color: 0xa8ee56, alpha: 1.0 }}
-  />
-     -->
   <!-- moving light -->
   <GL.Group location={[light.x,light.y,light.z]}>
-
+    {#if show_light}
+      <GL.Mesh
+        geometry={GL.sphere({ turns: 36, bands: 36 })}
+        location={[0,0.2,0]}
+        scale={0.1}
+	uniforms={{ color: from_hex(light_color), emissive: 0xcccc99 }}
+      />
+    {/if}
     <GL.PointLight
       location={[0,0,0]}
-      color={0xffffff}
+      color={from_hex(light_color)}
       intensity={0.6}
     />
   </GL.Group>
@@ -82,9 +88,17 @@
 
 <div class="controls">
   <label>
-    <input type="color" style="height: 40px" bind:value={color}>
+    <input type="color" style="height: 40px" bind:value={color}> box ({color})
   </label>
-
+  <label>
+    <input type="color" style="height: 40px" bind:value={light_color}> light ({light_color})
+  </label>
+  <label>
+    <input type="checkbox" bind:checked={show_light} /> Show light?
+  </label>
+  <label>
+    <input type="checkbox" bind:checked={move_light} /> Move light?
+  </label>
   <label>
     <input type="range" bind:value={w} min={0.1} max={5} step={0.1}> width ({w})
   </label>
@@ -95,6 +109,10 @@
 
   <label>
     <input type="range" bind:value={d} min={0.1} max={5} step={0.1}> depth ({d})
+  </label>
+
+  <label>
+    <input type="range" bind:value={radius} min={0.01} max={0.5} step={0.01}> radius ({radius})
   </label>
 </div>
 

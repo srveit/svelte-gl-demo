@@ -2,59 +2,102 @@
  import * as GL from '@sveltejs/gl';
  import CubeFace from './CubeFace.svelte';
 
- export let location = [0, 0, 0];
  export let scale = 1;
  export let radius = 0;
- export let uniforms = {};
 
- const faces = [
+ // pass to Group
+ export let location = undefined;
+ export let lookAt = undefined;
+ export let up = undefined;
+ export let rotation = undefined;
+ // pass to CubeFaces
+ export let vert = undefined;
+ export let frag = undefined;
+ export let uniforms = undefined;
+ export let blend = undefined;
+ export let depthTest = undefined;
+ export let transparent = undefined;
+
+ $: scale_array = typeof scale === 'number' ? [scale, scale, scale] : scale;
+ $: w = scale_array[0];
+ $: h = scale_array[1];
+ $: d = scale_array[2];
+
+ $: faces = [
      {
-         location: [1.0, 0.0, 0.0],
+         name: 'right',
+         location: [w * 0.5, 0.0, 0.0],
          rotation: [90, 0, 90],
-         corners: true
+         corners: false,
+         scale: [h, d, 1],
+         radius: radius
      },
      {
-         location: [0.0, 0.0, 0.0],
+         name: 'left',
+         location: [-w * 0.5, 0.0, 0.0],
          rotation: [90, 0, -90],
-         corners: true
+         corners: false,
+         scale: [h, d, 1],
+         radius: radius
      },
      {
-         location: [0.5, 0.0, 0.5],
-         rotation: [0, 0, 0],
-         corners: false
-     },
-     {
-         location: [0.5, 0.5, 0.0],
+         name: 'top',
+         location: [0.0, h * 0.5, 0.0],
          rotation: [-90, 90, 0],
-         corners: false
+         corners: false,
+         scale: [d, w, 1],
+         radius: radius
      },
      {
-         location: [0.5, 0.0, -0.5],
-         rotation: [0, 180, 0],
-         corners: false
-     },
-     {
-         location: [0.5, -0.5, 0.0],
+         name: 'bottom',
+         location: [0.0, -h * 0.5, 0.0],
          rotation: [90, -90, 0],
-         corners: false
+         corners: false,
+         scale: [d, w, 1],
+         radius: radius
+     },
+     {
+         name: 'front',
+         location: [0.0, 0.0, d * 0.5],
+         rotation: [0, 0, 0],
+         corners: true,
+         scale: [w, h, 1],
+         radius: radius / h
+     },
+     {
+         name: 'back',
+         location: [0.0, 0.0, -d * 0.5],
+         rotation: [0, 180, 0],
+         corners: true,
+         scale: [w, h, 1],
+         radius: radius
      }
  ];
- 
- const from_hex = hex => parseInt(hex.slice(1), 16);
+
 </script>
 
 <GL.Group
   location={location}
-  scale={scale}>
+  lookAt={lookAt}
+  up={up}
+  rotation={rotation}
+>
 
   {#each faces as face}
 
   <CubeFace
+      corners={face.corners}
+      radius={radius}
       location={face.location}
       rotation={face.rotation}
+      scale={face.scale}
+      name={face.name}
+      vert={vert}
+      frag={frag}
       uniforms={uniforms}
-      radius={radius}
-      corners={face.corners}
+      blend={blend}
+      depthTest={depthTest}
+      transparent={transparent}
   />
   {/each}
 

@@ -4236,6 +4236,7 @@ var app = (function () {
     const PI = Math.PI;
     const PI2 = PI * 2;
 
+    // TODO use angles for chords
     function create_smooth_geometry(turns, bands, turns_chord, bands_chord) {
     	const num_vertices = (turns + 1) * (bands + 1);
     	const num_faces_per_turn = 2 * bands;
@@ -4323,12 +4324,15 @@ var app = (function () {
     const PI$1 = Math.PI;
     const PI2$1 = PI$1 * 2;
 
+    // TODO use angle for chord
+    // TODO fix normals
     function create_smooth_geometry$1(turns, turns_chord) {
     	const num_vertices = (turns + 1) * (1 + 1);
     	const num_faces_per_turn = 2 * 1;
     	const num_faces = num_faces_per_turn * turns;
 
-    	const position = new Float32Array(num_vertices * 3); // doubles as normal
+    	const position = new Float32Array(num_vertices * 3);
+    	const normal = new Float32Array(num_vertices * 3);
     	const uv = new Float32Array(num_vertices * 2);
     	const index = new Uint32Array(num_faces * 3);
 
@@ -4343,8 +4347,11 @@ var app = (function () {
     			const y = 0.5 - v;
     			const z = Math.sin(u * PI2$1);
 
+    			normal[position_index] = x;
     			position[position_index++] = x;
+    			normal[position_index] = 0;
     			position[position_index++] = y;
+    			normal[position_index] = z;
     			position[position_index++] = z;
 
     			uv[uv_index++] = u;
@@ -4372,7 +4379,7 @@ var app = (function () {
     			size: 3
     		},
     		normal: {
-    			data: position,
+    			data: normal,
     			size: 3
     		},
     		uv: {
@@ -4413,7 +4420,7 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (50:2) {#each edges as edge}
+    // (69:2) {#each edges as edge}
     function create_each_block_1(ctx) {
     	var current;
 
@@ -4422,8 +4429,13 @@ var app = (function () {
     		geometry: cylinder({ turns: 26, turns_chord: 0.25 }),
     		location: ctx.edge.location,
     		rotation: ctx.edge.rotation,
-    		scale: [ctx.radius, 1 - ctx.radius - ctx.radius, ctx.radius],
-    		uniforms: ctx.uniforms
+    		scale: ctx.edge.scale,
+    		vert: ctx.vert,
+    		frag: ctx.frag,
+    		uniforms: ctx.uniforms,
+    		blend: ctx.blend,
+    		depthTest: ctx.depthTest,
+    		transparent: ctx.transparent
     	},
     		$$inline: true
     	});
@@ -4440,8 +4452,15 @@ var app = (function () {
 
     		p: function update(changed, ctx) {
     			var gl_mesh_changes = {};
-    			if (changed.radius) gl_mesh_changes.scale = [ctx.radius, 1 - ctx.radius - ctx.radius, ctx.radius];
+    			if (changed.edges) gl_mesh_changes.location = ctx.edge.location;
+    			if (changed.edges) gl_mesh_changes.rotation = ctx.edge.rotation;
+    			if (changed.edges) gl_mesh_changes.scale = ctx.edge.scale;
+    			if (changed.vert) gl_mesh_changes.vert = ctx.vert;
+    			if (changed.frag) gl_mesh_changes.frag = ctx.frag;
     			if (changed.uniforms) gl_mesh_changes.uniforms = ctx.uniforms;
+    			if (changed.blend) gl_mesh_changes.blend = ctx.blend;
+    			if (changed.depthTest) gl_mesh_changes.depthTest = ctx.depthTest;
+    			if (changed.transparent) gl_mesh_changes.transparent = ctx.transparent;
     			gl_mesh.$set(gl_mesh_changes);
     		},
 
@@ -4461,11 +4480,11 @@ var app = (function () {
     			destroy_component(gl_mesh, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_1.name, type: "each", source: "(50:2) {#each edges as edge}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_1.name, type: "each", source: "(69:2) {#each edges as edge}", ctx });
     	return block;
     }
 
-    // (61:2) {#each cube_corners as corner}
+    // (85:2) {#each cube_corners as corner}
     function create_each_block(ctx) {
     	var current;
 
@@ -4475,7 +4494,12 @@ var app = (function () {
     		location: ctx.corner.location,
     		rotation: ctx.corner.rotation,
     		scale: ctx.radius,
-    		uniforms: ctx.uniforms
+    		vert: ctx.vert,
+    		frag: ctx.frag,
+    		uniforms: ctx.uniforms,
+    		blend: ctx.blend,
+    		depthTest: ctx.depthTest,
+    		transparent: ctx.transparent
     	},
     		$$inline: true
     	});
@@ -4492,8 +4516,15 @@ var app = (function () {
 
     		p: function update(changed, ctx) {
     			var gl_mesh_changes = {};
+    			if (changed.cube_corners) gl_mesh_changes.location = ctx.corner.location;
+    			if (changed.cube_corners) gl_mesh_changes.rotation = ctx.corner.rotation;
     			if (changed.radius) gl_mesh_changes.scale = ctx.radius;
+    			if (changed.vert) gl_mesh_changes.vert = ctx.vert;
+    			if (changed.frag) gl_mesh_changes.frag = ctx.frag;
     			if (changed.uniforms) gl_mesh_changes.uniforms = ctx.uniforms;
+    			if (changed.blend) gl_mesh_changes.blend = ctx.blend;
+    			if (changed.depthTest) gl_mesh_changes.depthTest = ctx.depthTest;
+    			if (changed.transparent) gl_mesh_changes.transparent = ctx.transparent;
     			gl_mesh.$set(gl_mesh_changes);
     		},
 
@@ -4513,11 +4544,11 @@ var app = (function () {
     			destroy_component(gl_mesh, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block.name, type: "each", source: "(61:2) {#each cube_corners as corner}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block.name, type: "each", source: "(85:2) {#each cube_corners as corner}", ctx });
     	return block;
     }
 
-    // (46:0) <GL.Group   location={location}   rotation={rotation}>
+    // (62:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >
     function create_default_slot(ctx) {
     	var t0, t1, current;
 
@@ -4550,8 +4581,13 @@ var app = (function () {
     		geometry: plane(),
     		location: [0,0,0],
     		rotation: [0,0,0],
-    		scale: 0.5 - ctx.radius,
-    		uniforms: ctx.uniforms
+    		scale: [ctx.w * 0.5 - ctx.radius, ctx.h * 0.5 - ctx.radius, 1],
+    		vert: ctx.vert,
+    		frag: ctx.frag,
+    		uniforms: ctx.uniforms,
+    		blend: ctx.blend,
+    		depthTest: ctx.depthTest,
+    		transparent: ctx.transparent
     	},
     		$$inline: true
     	});
@@ -4589,7 +4625,7 @@ var app = (function () {
     		},
 
     		p: function update(changed, ctx) {
-    			if (changed.GL || changed.edges || changed.radius || changed.uniforms) {
+    			if (changed.GL || changed.edges || changed.vert || changed.frag || changed.uniforms || changed.blend || changed.depthTest || changed.transparent) {
     				each_value_1 = ctx.edges;
 
     				let i;
@@ -4614,7 +4650,7 @@ var app = (function () {
     				check_outros();
     			}
 
-    			if (changed.GL || changed.cube_corners || changed.radius || changed.uniforms) {
+    			if (changed.GL || changed.cube_corners || changed.radius || changed.vert || changed.frag || changed.uniforms || changed.blend || changed.depthTest || changed.transparent) {
     				each_value = ctx.cube_corners;
 
     				let i;
@@ -4640,8 +4676,13 @@ var app = (function () {
     			}
 
     			var gl_mesh_changes = {};
-    			if (changed.radius) gl_mesh_changes.scale = 0.5 - ctx.radius;
+    			if (changed.w || changed.radius || changed.h) gl_mesh_changes.scale = [ctx.w * 0.5 - ctx.radius, ctx.h * 0.5 - ctx.radius, 1];
+    			if (changed.vert) gl_mesh_changes.vert = ctx.vert;
+    			if (changed.frag) gl_mesh_changes.frag = ctx.frag;
     			if (changed.uniforms) gl_mesh_changes.uniforms = ctx.uniforms;
+    			if (changed.blend) gl_mesh_changes.blend = ctx.blend;
+    			if (changed.depthTest) gl_mesh_changes.depthTest = ctx.depthTest;
+    			if (changed.transparent) gl_mesh_changes.transparent = ctx.transparent;
     			gl_mesh.$set(gl_mesh_changes);
     		},
 
@@ -4691,7 +4732,7 @@ var app = (function () {
     			destroy_component(gl_mesh, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot.name, type: "slot", source: "(46:0) <GL.Group   location={location}   rotation={rotation}>", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot.name, type: "slot", source: "(62:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >", ctx });
     	return block;
     }
 
@@ -4701,6 +4742,8 @@ var app = (function () {
     	var gl_group = new Group({
     		props: {
     		location: ctx.location,
+    		lookAt: ctx.lookAt,
+    		up: ctx.up,
     		rotation: ctx.rotation,
     		$$slots: { default: [create_default_slot] },
     		$$scope: { ctx }
@@ -4725,8 +4768,10 @@ var app = (function () {
     		p: function update(changed, ctx) {
     			var gl_group_changes = {};
     			if (changed.location) gl_group_changes.location = ctx.location;
+    			if (changed.lookAt) gl_group_changes.lookAt = ctx.lookAt;
+    			if (changed.up) gl_group_changes.up = ctx.up;
     			if (changed.rotation) gl_group_changes.rotation = ctx.rotation;
-    			if (changed.$$scope || changed.radius || changed.uniforms) gl_group_changes.$$scope = { changed, ctx };
+    			if (changed.$$scope || changed.w || changed.radius || changed.h || changed.vert || changed.frag || changed.uniforms || changed.blend || changed.depthTest || changed.transparent || changed.cube_corners || changed.edges) gl_group_changes.$$scope = { changed, ctx };
     			gl_group.$set(gl_group_changes);
     		},
 
@@ -4751,71 +4796,116 @@ var app = (function () {
     }
 
     function instance$9($$self, $$props, $$invalidate) {
-    	let { location = [0, 0, 0], rotation = [0, 0, 0], uniforms = {}, radius = 0, corners = true } = $$props;
+    	let { corners = true, radius = 0, scale = 1, name = 'face', location = undefined, lookAt = undefined, up = undefined, rotation = undefined, vert = undefined, frag = undefined, uniforms = undefined, blend = undefined, depthTest = undefined, transparent = undefined } = $$props;
 
-     const edges = [
-         {
-             location: [0.5 - radius, 0.0, -radius],
-             rotation: [0, 90, 0]
-         },
-         {
-             location: [-0.5 + radius, 0.0, -radius],
-             rotation: [0, 0, 0]
-         }
-     ];
-     const cube_corners =
-       corners ?
-       [
-         {
-             location: [0.5 - radius, 0.5 - radius, -radius],
-             rotation: [0, 90, 0]
-         },
-         {
-             location: [radius - 0.5, 0.5 - radius, -radius],
-             rotation: [0, 0, 0]
-         },
-         {
-             location: [0.5 - radius, radius - 0.5, -radius],
-             rotation: [90, 90, 0]
-         },
-         {
-             location: [radius - 0.5, radius - 0.5, -radius],
-             rotation: [90, 0, 0]
-         }
-       ] :
-       [];
-
-    	const writable_props = ['location', 'rotation', 'uniforms', 'radius', 'corners'];
+    	const writable_props = ['corners', 'radius', 'scale', 'name', 'location', 'lookAt', 'up', 'rotation', 'vert', 'frag', 'uniforms', 'blend', 'depthTest', 'transparent'];
     	Object.keys($$props).forEach(key => {
     		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<CubeFace> was created with unknown prop '${key}'`);
     	});
 
     	$$self.$set = $$props => {
-    		if ('location' in $$props) $$invalidate('location', location = $$props.location);
-    		if ('rotation' in $$props) $$invalidate('rotation', rotation = $$props.rotation);
-    		if ('uniforms' in $$props) $$invalidate('uniforms', uniforms = $$props.uniforms);
-    		if ('radius' in $$props) $$invalidate('radius', radius = $$props.radius);
     		if ('corners' in $$props) $$invalidate('corners', corners = $$props.corners);
+    		if ('radius' in $$props) $$invalidate('radius', radius = $$props.radius);
+    		if ('scale' in $$props) $$invalidate('scale', scale = $$props.scale);
+    		if ('name' in $$props) $$invalidate('name', name = $$props.name);
+    		if ('location' in $$props) $$invalidate('location', location = $$props.location);
+    		if ('lookAt' in $$props) $$invalidate('lookAt', lookAt = $$props.lookAt);
+    		if ('up' in $$props) $$invalidate('up', up = $$props.up);
+    		if ('rotation' in $$props) $$invalidate('rotation', rotation = $$props.rotation);
+    		if ('vert' in $$props) $$invalidate('vert', vert = $$props.vert);
+    		if ('frag' in $$props) $$invalidate('frag', frag = $$props.frag);
+    		if ('uniforms' in $$props) $$invalidate('uniforms', uniforms = $$props.uniforms);
+    		if ('blend' in $$props) $$invalidate('blend', blend = $$props.blend);
+    		if ('depthTest' in $$props) $$invalidate('depthTest', depthTest = $$props.depthTest);
+    		if ('transparent' in $$props) $$invalidate('transparent', transparent = $$props.transparent);
     	};
 
     	$$self.$capture_state = () => {
-    		return { location, rotation, uniforms, radius, corners };
+    		return { corners, radius, scale, name, location, lookAt, up, rotation, vert, frag, uniforms, blend, depthTest, transparent, scale_array, w, h, d, edges, cube_corners };
     	};
 
     	$$self.$inject_state = $$props => {
-    		if ('location' in $$props) $$invalidate('location', location = $$props.location);
-    		if ('rotation' in $$props) $$invalidate('rotation', rotation = $$props.rotation);
-    		if ('uniforms' in $$props) $$invalidate('uniforms', uniforms = $$props.uniforms);
-    		if ('radius' in $$props) $$invalidate('radius', radius = $$props.radius);
     		if ('corners' in $$props) $$invalidate('corners', corners = $$props.corners);
+    		if ('radius' in $$props) $$invalidate('radius', radius = $$props.radius);
+    		if ('scale' in $$props) $$invalidate('scale', scale = $$props.scale);
+    		if ('name' in $$props) $$invalidate('name', name = $$props.name);
+    		if ('location' in $$props) $$invalidate('location', location = $$props.location);
+    		if ('lookAt' in $$props) $$invalidate('lookAt', lookAt = $$props.lookAt);
+    		if ('up' in $$props) $$invalidate('up', up = $$props.up);
+    		if ('rotation' in $$props) $$invalidate('rotation', rotation = $$props.rotation);
+    		if ('vert' in $$props) $$invalidate('vert', vert = $$props.vert);
+    		if ('frag' in $$props) $$invalidate('frag', frag = $$props.frag);
+    		if ('uniforms' in $$props) $$invalidate('uniforms', uniforms = $$props.uniforms);
+    		if ('blend' in $$props) $$invalidate('blend', blend = $$props.blend);
+    		if ('depthTest' in $$props) $$invalidate('depthTest', depthTest = $$props.depthTest);
+    		if ('transparent' in $$props) $$invalidate('transparent', transparent = $$props.transparent);
+    		if ('scale_array' in $$props) $$invalidate('scale_array', scale_array = $$props.scale_array);
+    		if ('w' in $$props) $$invalidate('w', w = $$props.w);
+    		if ('h' in $$props) $$invalidate('h', h = $$props.h);
+    		if ('d' in $$props) d = $$props.d;
+    		if ('edges' in $$props) $$invalidate('edges', edges = $$props.edges);
+    		if ('cube_corners' in $$props) $$invalidate('cube_corners', cube_corners = $$props.cube_corners);
+    	};
+
+    	let scale_array, w, h, d, edges, cube_corners;
+
+    	$$self.$$.update = ($$dirty = { scale: 1, scale_array: 1, w: 1, radius: 1, h: 1, corners: 1 }) => {
+    		if ($$dirty.scale) { $$invalidate('scale_array', scale_array = typeof scale === 'number' ? [scale, scale, scale] : scale); }
+    		if ($$dirty.scale_array) { $$invalidate('w', w = scale_array[0]); }
+    		if ($$dirty.scale_array) { $$invalidate('h', h = scale_array[1]); }
+    		if ($$dirty.scale_array) { d = scale_array[2]; }
+    		if ($$dirty.w || $$dirty.radius || $$dirty.h) { $$invalidate('edges', edges = [
+             {
+                 location: [w * 0.5 - radius, 0.0, -radius],
+                 rotation: [0, 90, 0],
+                 scale: [radius, h - 2 * radius, radius]
+             },
+             {
+                 location: [-w * 0.5 + radius, 0.0, -radius],
+                 rotation: [0, 0, 0],
+                 scale: [radius, h - 2 * radius, radius]
+             }
+         ]); }
+    		if ($$dirty.corners || $$dirty.w || $$dirty.radius || $$dirty.h) { $$invalidate('cube_corners', cube_corners =
+           corners ?
+           [
+             {
+                 location: [w * 0.5 - radius, h * 0.5 - radius, -radius],
+                 rotation: [0, 90, 0]
+             },
+             {
+                 location: [radius - w * 0.5, h * 0.5 - radius, -radius],
+                 rotation: [0, 0, 0]
+             },
+             {
+                 location: [w * 0.5 - radius, radius - h * 0.5, -radius],
+                 rotation: [90, 90, 0]
+             },
+             {
+                 location: [radius - w * 0.5, radius - h * 0.5, -radius],
+                 rotation: [90, 0, 0]
+             }
+           ] :
+           []); }
     	};
 
     	return {
-    		location,
-    		rotation,
-    		uniforms,
-    		radius,
     		corners,
+    		radius,
+    		scale,
+    		name,
+    		location,
+    		lookAt,
+    		up,
+    		rotation,
+    		vert,
+    		frag,
+    		uniforms,
+    		blend,
+    		depthTest,
+    		transparent,
+    		w,
+    		h,
     		edges,
     		cube_corners
     	};
@@ -4824,31 +4914,15 @@ var app = (function () {
     class CubeFace extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$9, create_fragment$9, safe_not_equal, ["location", "rotation", "uniforms", "radius", "corners"]);
+    		init(this, options, instance$9, create_fragment$9, safe_not_equal, ["corners", "radius", "scale", "name", "location", "lookAt", "up", "rotation", "vert", "frag", "uniforms", "blend", "depthTest", "transparent"]);
     		dispatch_dev("SvelteRegisterComponent", { component: this, tagName: "CubeFace", options, id: create_fragment$9.name });
     	}
 
-    	get location() {
+    	get corners() {
     		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
-    	set location(value) {
-    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get rotation() {
-    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set rotation(value) {
-    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get uniforms() {
-    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set uniforms(value) {
+    	set corners(value) {
     		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
@@ -4860,11 +4934,99 @@ var app = (function () {
     		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
-    	get corners() {
+    	get scale() {
     		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
-    	set corners(value) {
+    	set scale(value) {
+    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get name() {
+    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set name(value) {
+    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get location() {
+    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set location(value) {
+    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get lookAt() {
+    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set lookAt(value) {
+    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get up() {
+    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set up(value) {
+    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get rotation() {
+    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set rotation(value) {
+    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get vert() {
+    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set vert(value) {
+    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get frag() {
+    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set frag(value) {
+    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get uniforms() {
+    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set uniforms(value) {
+    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get blend() {
+    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set blend(value) {
+    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get depthTest() {
+    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set depthTest(value) {
+    		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get transparent() {
+    		throw new Error("<CubeFace>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set transparent(value) {
     		throw new Error("<CubeFace>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
     }
@@ -4877,17 +5039,24 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (50:2) {#each faces as face}
+    // (86:2) {#each faces as face}
     function create_each_block$1(ctx) {
     	var current;
 
     	var cubeface = new CubeFace({
     		props: {
+    		corners: ctx.face.corners,
+    		radius: ctx.radius,
     		location: ctx.face.location,
     		rotation: ctx.face.rotation,
+    		scale: ctx.face.scale,
+    		name: ctx.face.name,
+    		vert: ctx.vert,
+    		frag: ctx.frag,
     		uniforms: ctx.uniforms,
-    		radius: ctx.radius,
-    		corners: ctx.face.corners
+    		blend: ctx.blend,
+    		depthTest: ctx.depthTest,
+    		transparent: ctx.transparent
     	},
     		$$inline: true
     	});
@@ -4904,8 +5073,18 @@ var app = (function () {
 
     		p: function update(changed, ctx) {
     			var cubeface_changes = {};
-    			if (changed.uniforms) cubeface_changes.uniforms = ctx.uniforms;
+    			if (changed.faces) cubeface_changes.corners = ctx.face.corners;
     			if (changed.radius) cubeface_changes.radius = ctx.radius;
+    			if (changed.faces) cubeface_changes.location = ctx.face.location;
+    			if (changed.faces) cubeface_changes.rotation = ctx.face.rotation;
+    			if (changed.faces) cubeface_changes.scale = ctx.face.scale;
+    			if (changed.faces) cubeface_changes.name = ctx.face.name;
+    			if (changed.vert) cubeface_changes.vert = ctx.vert;
+    			if (changed.frag) cubeface_changes.frag = ctx.frag;
+    			if (changed.uniforms) cubeface_changes.uniforms = ctx.uniforms;
+    			if (changed.blend) cubeface_changes.blend = ctx.blend;
+    			if (changed.depthTest) cubeface_changes.depthTest = ctx.depthTest;
+    			if (changed.transparent) cubeface_changes.transparent = ctx.transparent;
     			cubeface.$set(cubeface_changes);
     		},
 
@@ -4925,11 +5104,11 @@ var app = (function () {
     			destroy_component(cubeface, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$1.name, type: "each", source: "(50:2) {#each faces as face}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$1.name, type: "each", source: "(86:2) {#each faces as face}", ctx });
     	return block;
     }
 
-    // (46:0) <GL.Group   location={location}   scale={scale}>
+    // (79:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >
     function create_default_slot$1(ctx) {
     	var each_1_anchor, current;
 
@@ -4964,7 +5143,7 @@ var app = (function () {
     		},
 
     		p: function update(changed, ctx) {
-    			if (changed.faces || changed.uniforms || changed.radius) {
+    			if (changed.faces || changed.radius || changed.vert || changed.frag || changed.uniforms || changed.blend || changed.depthTest || changed.transparent) {
     				each_value = ctx.faces;
 
     				let i;
@@ -5016,7 +5195,7 @@ var app = (function () {
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$1.name, type: "slot", source: "(46:0) <GL.Group   location={location}   scale={scale}>", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$1.name, type: "slot", source: "(79:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >", ctx });
     	return block;
     }
 
@@ -5026,7 +5205,9 @@ var app = (function () {
     	var gl_group = new Group({
     		props: {
     		location: ctx.location,
-    		scale: ctx.scale,
+    		lookAt: ctx.lookAt,
+    		up: ctx.up,
+    		rotation: ctx.rotation,
     		$$slots: { default: [create_default_slot$1] },
     		$$scope: { ctx }
     	},
@@ -5050,8 +5231,10 @@ var app = (function () {
     		p: function update(changed, ctx) {
     			var gl_group_changes = {};
     			if (changed.location) gl_group_changes.location = ctx.location;
-    			if (changed.scale) gl_group_changes.scale = ctx.scale;
-    			if (changed.$$scope || changed.uniforms || changed.radius) gl_group_changes.$$scope = { changed, ctx };
+    			if (changed.lookAt) gl_group_changes.lookAt = ctx.lookAt;
+    			if (changed.up) gl_group_changes.up = ctx.up;
+    			if (changed.rotation) gl_group_changes.rotation = ctx.rotation;
+    			if (changed.$$scope || changed.faces || changed.radius || changed.vert || changed.frag || changed.uniforms || changed.blend || changed.depthTest || changed.transparent) gl_group_changes.$$scope = { changed, ctx };
     			gl_group.$set(gl_group_changes);
     		},
 
@@ -5078,80 +5261,133 @@ var app = (function () {
     function instance$a($$self, $$props, $$invalidate) {
     	
 
-     let { location = [0, 0, 0], scale = 1, radius = 0, uniforms = {} } = $$props;
+     let { scale = 1, radius = 0, location = undefined, lookAt = undefined, up = undefined, rotation = undefined, vert = undefined, frag = undefined, uniforms = undefined, blend = undefined, depthTest = undefined, transparent = undefined } = $$props;
 
-     const faces = [
-         {
-             location: [1.0, 0.0, 0.0],
-             rotation: [90, 0, 90],
-             corners: true
-         },
-         {
-             location: [0.0, 0.0, 0.0],
-             rotation: [90, 0, -90],
-             corners: true
-         },
-         {
-             location: [0.5, 0.0, 0.5],
-             rotation: [0, 0, 0],
-             corners: false
-         },
-         {
-             location: [0.5, 0.5, 0.0],
-             rotation: [-90, 90, 0],
-             corners: false
-         },
-         {
-             location: [0.5, 0.0, -0.5],
-             rotation: [0, 180, 0],
-             corners: false
-         },
-         {
-             location: [0.5, -0.5, 0.0],
-             rotation: [90, -90, 0],
-             corners: false
-         }
-     ];
-
-    	const writable_props = ['location', 'scale', 'radius', 'uniforms'];
+    	const writable_props = ['scale', 'radius', 'location', 'lookAt', 'up', 'rotation', 'vert', 'frag', 'uniforms', 'blend', 'depthTest', 'transparent'];
     	Object.keys($$props).forEach(key => {
     		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<Cube> was created with unknown prop '${key}'`);
     	});
 
     	$$self.$set = $$props => {
-    		if ('location' in $$props) $$invalidate('location', location = $$props.location);
     		if ('scale' in $$props) $$invalidate('scale', scale = $$props.scale);
     		if ('radius' in $$props) $$invalidate('radius', radius = $$props.radius);
+    		if ('location' in $$props) $$invalidate('location', location = $$props.location);
+    		if ('lookAt' in $$props) $$invalidate('lookAt', lookAt = $$props.lookAt);
+    		if ('up' in $$props) $$invalidate('up', up = $$props.up);
+    		if ('rotation' in $$props) $$invalidate('rotation', rotation = $$props.rotation);
+    		if ('vert' in $$props) $$invalidate('vert', vert = $$props.vert);
+    		if ('frag' in $$props) $$invalidate('frag', frag = $$props.frag);
     		if ('uniforms' in $$props) $$invalidate('uniforms', uniforms = $$props.uniforms);
+    		if ('blend' in $$props) $$invalidate('blend', blend = $$props.blend);
+    		if ('depthTest' in $$props) $$invalidate('depthTest', depthTest = $$props.depthTest);
+    		if ('transparent' in $$props) $$invalidate('transparent', transparent = $$props.transparent);
     	};
 
     	$$self.$capture_state = () => {
-    		return { location, scale, radius, uniforms };
+    		return { scale, radius, location, lookAt, up, rotation, vert, frag, uniforms, blend, depthTest, transparent, scale_array, w, h, d, faces };
     	};
 
     	$$self.$inject_state = $$props => {
-    		if ('location' in $$props) $$invalidate('location', location = $$props.location);
     		if ('scale' in $$props) $$invalidate('scale', scale = $$props.scale);
     		if ('radius' in $$props) $$invalidate('radius', radius = $$props.radius);
+    		if ('location' in $$props) $$invalidate('location', location = $$props.location);
+    		if ('lookAt' in $$props) $$invalidate('lookAt', lookAt = $$props.lookAt);
+    		if ('up' in $$props) $$invalidate('up', up = $$props.up);
+    		if ('rotation' in $$props) $$invalidate('rotation', rotation = $$props.rotation);
+    		if ('vert' in $$props) $$invalidate('vert', vert = $$props.vert);
+    		if ('frag' in $$props) $$invalidate('frag', frag = $$props.frag);
     		if ('uniforms' in $$props) $$invalidate('uniforms', uniforms = $$props.uniforms);
+    		if ('blend' in $$props) $$invalidate('blend', blend = $$props.blend);
+    		if ('depthTest' in $$props) $$invalidate('depthTest', depthTest = $$props.depthTest);
+    		if ('transparent' in $$props) $$invalidate('transparent', transparent = $$props.transparent);
+    		if ('scale_array' in $$props) $$invalidate('scale_array', scale_array = $$props.scale_array);
+    		if ('w' in $$props) $$invalidate('w', w = $$props.w);
+    		if ('h' in $$props) $$invalidate('h', h = $$props.h);
+    		if ('d' in $$props) $$invalidate('d', d = $$props.d);
+    		if ('faces' in $$props) $$invalidate('faces', faces = $$props.faces);
     	};
 
-    	return { location, scale, radius, uniforms, faces };
+    	let scale_array, w, h, d, faces;
+
+    	$$self.$$.update = ($$dirty = { scale: 1, scale_array: 1, w: 1, h: 1, d: 1, radius: 1 }) => {
+    		if ($$dirty.scale) { $$invalidate('scale_array', scale_array = typeof scale === 'number' ? [scale, scale, scale] : scale); }
+    		if ($$dirty.scale_array) { $$invalidate('w', w = scale_array[0]); }
+    		if ($$dirty.scale_array) { $$invalidate('h', h = scale_array[1]); }
+    		if ($$dirty.scale_array) { $$invalidate('d', d = scale_array[2]); }
+    		if ($$dirty.w || $$dirty.h || $$dirty.d || $$dirty.radius) { $$invalidate('faces', faces = [
+             {
+                 name: 'right',
+                 location: [w * 0.5, 0.0, 0.0],
+                 rotation: [90, 0, 90],
+                 corners: false,
+                 scale: [h, d, 1],
+                 radius: radius
+             },
+             {
+                 name: 'left',
+                 location: [-w * 0.5, 0.0, 0.0],
+                 rotation: [90, 0, -90],
+                 corners: false,
+                 scale: [h, d, 1],
+                 radius: radius
+             },
+             {
+                 name: 'top',
+                 location: [0.0, h * 0.5, 0.0],
+                 rotation: [-90, 90, 0],
+                 corners: false,
+                 scale: [d, w, 1],
+                 radius: radius
+             },
+             {
+                 name: 'bottom',
+                 location: [0.0, -h * 0.5, 0.0],
+                 rotation: [90, -90, 0],
+                 corners: false,
+                 scale: [d, w, 1],
+                 radius: radius
+             },
+             {
+                 name: 'front',
+                 location: [0.0, 0.0, d * 0.5],
+                 rotation: [0, 0, 0],
+                 corners: true,
+                 scale: [w, h, 1],
+                 radius: radius / h
+             },
+             {
+                 name: 'back',
+                 location: [0.0, 0.0, -d * 0.5],
+                 rotation: [0, 180, 0],
+                 corners: true,
+                 scale: [w, h, 1],
+                 radius: radius
+             }
+         ]); }
+    	};
+
+    	return {
+    		scale,
+    		radius,
+    		location,
+    		lookAt,
+    		up,
+    		rotation,
+    		vert,
+    		frag,
+    		uniforms,
+    		blend,
+    		depthTest,
+    		transparent,
+    		faces
+    	};
     }
 
     class Cube extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$a, create_fragment$a, safe_not_equal, ["location", "scale", "radius", "uniforms"]);
+    		init(this, options, instance$a, create_fragment$a, safe_not_equal, ["scale", "radius", "location", "lookAt", "up", "rotation", "vert", "frag", "uniforms", "blend", "depthTest", "transparent"]);
     		dispatch_dev("SvelteRegisterComponent", { component: this, tagName: "Cube", options, id: create_fragment$a.name });
-    	}
-
-    	get location() {
-    		throw new Error("<Cube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set location(value) {
-    		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
     	get scale() {
@@ -5170,11 +5406,83 @@ var app = (function () {
     		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
+    	get location() {
+    		throw new Error("<Cube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set location(value) {
+    		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get lookAt() {
+    		throw new Error("<Cube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set lookAt(value) {
+    		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get up() {
+    		throw new Error("<Cube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set up(value) {
+    		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get rotation() {
+    		throw new Error("<Cube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set rotation(value) {
+    		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get vert() {
+    		throw new Error("<Cube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set vert(value) {
+    		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get frag() {
+    		throw new Error("<Cube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set frag(value) {
+    		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
     	get uniforms() {
     		throw new Error("<Cube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
     	set uniforms(value) {
+    		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get blend() {
+    		throw new Error("<Cube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set blend(value) {
+    		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get depthTest() {
+    		throw new Error("<Cube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set depthTest(value) {
+    		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get transparent() {
+    		throw new Error("<Cube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set transparent(value) {
     		throw new Error("<Cube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
     }
@@ -5183,7 +5491,7 @@ var app = (function () {
 
     const file$1 = "src/App.svelte";
 
-    // (40:2) <GL.OrbitControls maxPolarAngle={Math.PI} let:location>
+    // (46:2) <GL.OrbitControls maxPolarAngle={Math.PI} let:location>
     function create_default_slot_2(ctx) {
     	var current;
 
@@ -5229,18 +5537,70 @@ var app = (function () {
     			destroy_component(gl_perspectivecamera, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_2.name, type: "slot", source: "(40:2) <GL.OrbitControls maxPolarAngle={Math.PI} let:location>", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_2.name, type: "slot", source: "(46:2) <GL.OrbitControls maxPolarAngle={Math.PI} let:location>", ctx });
     	return block;
     }
 
-    // (73:2) <GL.Group location={[light.x,light.y,light.z]}>
-    function create_default_slot_1(ctx) {
+    // (73:4) {#if show_light}
+    function create_if_block$1(ctx) {
     	var current;
+
+    	var gl_mesh = new Index({
+    		props: {
+    		geometry: sphere({ turns: 36, bands: 36 }),
+    		location: [0,0.2,0],
+    		scale: 0.1,
+    		uniforms: { color: ctx.from_hex(ctx.light_color), emissive: 0xcccc99 }
+    	},
+    		$$inline: true
+    	});
+
+    	const block = {
+    		c: function create() {
+    			gl_mesh.$$.fragment.c();
+    		},
+
+    		m: function mount(target, anchor) {
+    			mount_component(gl_mesh, target, anchor);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			var gl_mesh_changes = {};
+    			if (changed.light_color) gl_mesh_changes.uniforms = { color: ctx.from_hex(ctx.light_color), emissive: 0xcccc99 };
+    			gl_mesh.$set(gl_mesh_changes);
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(gl_mesh.$$.fragment, local);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(gl_mesh.$$.fragment, local);
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_component(gl_mesh, detaching);
+    		}
+    	};
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$1.name, type: "if", source: "(73:4) {#if show_light}", ctx });
+    	return block;
+    }
+
+    // (72:2) <GL.Group location={[light.x,light.y,light.z]}>
+    function create_default_slot_1(ctx) {
+    	var t, current;
+
+    	var if_block = (ctx.show_light) && create_if_block$1(ctx);
 
     	var gl_pointlight = new PointLight({
     		props: {
     		location: [0,0,0],
-    		color: 0xffffff,
+    		color: ctx.from_hex(ctx.light_color),
     		intensity: 0.6
     	},
     		$$inline: true
@@ -5248,37 +5608,72 @@ var app = (function () {
 
     	const block = {
     		c: function create() {
+    			if (if_block) if_block.c();
+    			t = space();
     			gl_pointlight.$$.fragment.c();
     		},
 
     		m: function mount(target, anchor) {
+    			if (if_block) if_block.m(target, anchor);
+    			insert_dev(target, t, anchor);
     			mount_component(gl_pointlight, target, anchor);
     			current = true;
     		},
 
-    		p: noop,
+    		p: function update(changed, ctx) {
+    			if (ctx.show_light) {
+    				if (if_block) {
+    					if_block.p(changed, ctx);
+    					transition_in(if_block, 1);
+    				} else {
+    					if_block = create_if_block$1(ctx);
+    					if_block.c();
+    					transition_in(if_block, 1);
+    					if_block.m(t.parentNode, t);
+    				}
+    			} else if (if_block) {
+    				group_outros();
+    				transition_out(if_block, 1, 1, () => {
+    					if_block = null;
+    				});
+    				check_outros();
+    			}
+
+    			var gl_pointlight_changes = {};
+    			if (changed.light_color) gl_pointlight_changes.color = ctx.from_hex(ctx.light_color);
+    			gl_pointlight.$set(gl_pointlight_changes);
+    		},
 
     		i: function intro(local) {
     			if (current) return;
+    			transition_in(if_block);
+
     			transition_in(gl_pointlight.$$.fragment, local);
 
     			current = true;
     		},
 
     		o: function outro(local) {
+    			transition_out(if_block);
     			transition_out(gl_pointlight.$$.fragment, local);
     			current = false;
     		},
 
     		d: function destroy(detaching) {
+    			if (if_block) if_block.d(detaching);
+
+    			if (detaching) {
+    				detach_dev(t);
+    			}
+
     			destroy_component(gl_pointlight, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_1.name, type: "slot", source: "(73:2) <GL.Group location={[light.x,light.y,light.z]}>", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_1.name, type: "slot", source: "(72:2) <GL.Group location={[light.x,light.y,light.z]}>", ctx });
     	return block;
     }
 
-    // (37:0) <GL.Scene>
+    // (43:0) <GL.Scene>
     function create_default_slot$2(ctx) {
     	var t0, t1, t2, t3, t4, t5, current;
 
@@ -5289,7 +5684,7 @@ var app = (function () {
 
     	var gl_orbitcontrols = new OrbitControls({
     		props: {
-    		maxPolarAngle: Math.PI,
+    		maxPolarAngle: ctx.Math.PI,
     		$$slots: {
     		default: [create_default_slot_2, ({ location }) => ({ location })]
     	},
@@ -5325,9 +5720,10 @@ var app = (function () {
     	var cube = new Cube({
     		props: {
     		location: [0, ctx.h/2, 0],
+    		rotation: [0,20,0],
     		scale: [ctx.w,ctx.h,ctx.d],
-    		radius: radius,
-    		uniforms: { color: 0x8080ff, alpha: 1.0 }
+    		radius: ctx.radius,
+    		uniforms: { color: ctx.from_hex(ctx.color), alpha: 1.0 }
     	},
     		$$inline: true
     	});
@@ -5387,10 +5783,13 @@ var app = (function () {
     			var cube_changes = {};
     			if (changed.h) cube_changes.location = [0, ctx.h/2, 0];
     			if (changed.w || changed.h || changed.d) cube_changes.scale = [ctx.w,ctx.h,ctx.d];
+    			if (changed.radius) cube_changes.radius = ctx.radius;
+    			if (changed.color) cube_changes.uniforms = { color: ctx.from_hex(ctx.color), alpha: 1.0 };
     			cube.$set(cube_changes);
 
     			var gl_group_changes = {};
-    			if (changed.$$scope) gl_group_changes.$$scope = { changed, ctx };
+    			if (changed.light) gl_group_changes.location = [ctx.light.x,ctx.light.y,ctx.light.z];
+    			if (changed.$$scope || changed.light_color || changed.show_light) gl_group_changes.$$scope = { changed, ctx };
     			gl_group.$set(gl_group_changes);
     		},
 
@@ -5464,12 +5863,12 @@ var app = (function () {
     			destroy_component(gl_group, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$2.name, type: "slot", source: "(37:0) <GL.Scene>", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$2.name, type: "slot", source: "(43:0) <GL.Scene>", ctx });
     	return block;
     }
 
     function create_fragment$b(ctx) {
-    	var t0, div, label0, input0, t1, label1, input1, t2, t3, t4, t5, label2, input2, t6, t7, t8, t9, label3, input3, t10, t11, t12, current, dispose;
+    	var t0, div, label0, input0, t1, t2, t3, t4, label1, input1, t5, t6, t7, t8, label2, input2, t9, t10, label3, input3, t11, t12, label4, input4, t13, t14, t15, t16, label5, input5, t17, t18, t19, t20, label6, input6, t21, t22, t23, t24, label7, input7, t25, t26, t27, current, dispose;
 
     	var gl_scene = new Scene({
     		props: {
@@ -5486,57 +5885,101 @@ var app = (function () {
     			div = element("div");
     			label0 = element("label");
     			input0 = element("input");
-    			t1 = space();
+    			t1 = text(" box (");
+    			t2 = text(ctx.color);
+    			t3 = text(")");
+    			t4 = space();
     			label1 = element("label");
     			input1 = element("input");
-    			t2 = text(" width (");
-    			t3 = text(ctx.w);
-    			t4 = text(")");
-    			t5 = space();
+    			t5 = text(" light (");
+    			t6 = text(ctx.light_color);
+    			t7 = text(")");
+    			t8 = space();
     			label2 = element("label");
     			input2 = element("input");
-    			t6 = text(" height (");
-    			t7 = text(ctx.h);
-    			t8 = text(")");
-    			t9 = space();
+    			t9 = text(" Show light?");
+    			t10 = space();
     			label3 = element("label");
     			input3 = element("input");
-    			t10 = text(" depth (");
-    			t11 = text(ctx.d);
-    			t12 = text(")");
+    			t11 = text(" Move light?");
+    			t12 = space();
+    			label4 = element("label");
+    			input4 = element("input");
+    			t13 = text(" width (");
+    			t14 = text(ctx.w);
+    			t15 = text(")");
+    			t16 = space();
+    			label5 = element("label");
+    			input5 = element("input");
+    			t17 = text(" height (");
+    			t18 = text(ctx.h);
+    			t19 = text(")");
+    			t20 = space();
+    			label6 = element("label");
+    			input6 = element("input");
+    			t21 = text(" depth (");
+    			t22 = text(ctx.d);
+    			t23 = text(")");
+    			t24 = space();
+    			label7 = element("label");
+    			input7 = element("input");
+    			t25 = text(" radius (");
+    			t26 = text(ctx.radius);
+    			t27 = text(")");
     			attr_dev(input0, "type", "color");
     			set_style(input0, "height", "40px");
-    			add_location(input0, file$1, 84, 4, 1761);
-    			add_location(label0, file$1, 83, 2, 1749);
-    			attr_dev(input1, "type", "range");
-    			attr_dev(input1, "min", 0.1);
-    			attr_dev(input1, "max", 5);
-    			attr_dev(input1, "step", 0.1);
-    			add_location(input1, file$1, 88, 4, 1848);
-    			add_location(label1, file$1, 87, 2, 1836);
-    			attr_dev(input2, "type", "range");
-    			attr_dev(input2, "min", 0.1);
-    			attr_dev(input2, "max", 5);
-    			attr_dev(input2, "step", 0.1);
-    			add_location(input2, file$1, 92, 4, 1951);
-    			add_location(label2, file$1, 91, 2, 1939);
-    			attr_dev(input3, "type", "range");
-    			attr_dev(input3, "min", 0.1);
-    			attr_dev(input3, "max", 5);
-    			attr_dev(input3, "step", 0.1);
-    			add_location(input3, file$1, 96, 4, 2055);
-    			add_location(label3, file$1, 95, 2, 2043);
+    			add_location(input0, file$1, 90, 4, 1937);
+    			add_location(label0, file$1, 89, 2, 1925);
+    			attr_dev(input1, "type", "color");
+    			set_style(input1, "height", "40px");
+    			add_location(input1, file$1, 93, 4, 2037);
+    			add_location(label1, file$1, 92, 2, 2025);
+    			attr_dev(input2, "type", "checkbox");
+    			add_location(input2, file$1, 96, 4, 2151);
+    			add_location(label2, file$1, 95, 2, 2139);
+    			attr_dev(input3, "type", "checkbox");
+    			add_location(input3, file$1, 99, 4, 2240);
+    			add_location(label3, file$1, 98, 2, 2228);
+    			attr_dev(input4, "type", "range");
+    			attr_dev(input4, "min", 0.1);
+    			attr_dev(input4, "max", 5);
+    			attr_dev(input4, "step", 0.1);
+    			add_location(input4, file$1, 102, 4, 2329);
+    			add_location(label4, file$1, 101, 2, 2317);
+    			attr_dev(input5, "type", "range");
+    			attr_dev(input5, "min", 0.1);
+    			attr_dev(input5, "max", 5);
+    			attr_dev(input5, "step", 0.1);
+    			add_location(input5, file$1, 106, 4, 2432);
+    			add_location(label5, file$1, 105, 2, 2420);
+    			attr_dev(input6, "type", "range");
+    			attr_dev(input6, "min", 0.1);
+    			attr_dev(input6, "max", 5);
+    			attr_dev(input6, "step", 0.1);
+    			add_location(input6, file$1, 110, 4, 2536);
+    			add_location(label6, file$1, 109, 2, 2524);
+    			attr_dev(input7, "type", "range");
+    			attr_dev(input7, "min", 0.01);
+    			attr_dev(input7, "max", 0.5);
+    			attr_dev(input7, "step", 0.01);
+    			add_location(input7, file$1, 114, 4, 2639);
+    			add_location(label7, file$1, 113, 2, 2627);
     			attr_dev(div, "class", "controls svelte-py1ens");
-    			add_location(div, file$1, 82, 0, 1724);
+    			add_location(div, file$1, 88, 0, 1900);
 
     			dispose = [
     				listen_dev(input0, "input", ctx.input0_input_handler),
-    				listen_dev(input1, "change", ctx.input1_change_input_handler),
-    				listen_dev(input1, "input", ctx.input1_change_input_handler),
-    				listen_dev(input2, "change", ctx.input2_change_input_handler),
-    				listen_dev(input2, "input", ctx.input2_change_input_handler),
-    				listen_dev(input3, "change", ctx.input3_change_input_handler),
-    				listen_dev(input3, "input", ctx.input3_change_input_handler)
+    				listen_dev(input1, "input", ctx.input1_input_handler),
+    				listen_dev(input2, "change", ctx.input2_change_handler),
+    				listen_dev(input3, "change", ctx.input3_change_handler),
+    				listen_dev(input4, "change", ctx.input4_change_input_handler),
+    				listen_dev(input4, "input", ctx.input4_change_input_handler),
+    				listen_dev(input5, "change", ctx.input5_change_input_handler),
+    				listen_dev(input5, "input", ctx.input5_change_input_handler),
+    				listen_dev(input6, "change", ctx.input6_change_input_handler),
+    				listen_dev(input6, "input", ctx.input6_change_input_handler),
+    				listen_dev(input7, "change", ctx.input7_change_input_handler),
+    				listen_dev(input7, "input", ctx.input7_change_input_handler)
     			];
     		},
 
@@ -5553,58 +5996,112 @@ var app = (function () {
 
     			set_input_value(input0, ctx.color);
 
-    			append_dev(div, t1);
+    			append_dev(label0, t1);
+    			append_dev(label0, t2);
+    			append_dev(label0, t3);
+    			append_dev(div, t4);
     			append_dev(div, label1);
     			append_dev(label1, input1);
 
-    			set_input_value(input1, ctx.w);
+    			set_input_value(input1, ctx.light_color);
 
-    			append_dev(label1, t2);
-    			append_dev(label1, t3);
-    			append_dev(label1, t4);
-    			append_dev(div, t5);
+    			append_dev(label1, t5);
+    			append_dev(label1, t6);
+    			append_dev(label1, t7);
+    			append_dev(div, t8);
     			append_dev(div, label2);
     			append_dev(label2, input2);
 
-    			set_input_value(input2, ctx.h);
+    			input2.checked = ctx.show_light;
 
-    			append_dev(label2, t6);
-    			append_dev(label2, t7);
-    			append_dev(label2, t8);
-    			append_dev(div, t9);
+    			append_dev(label2, t9);
+    			append_dev(div, t10);
     			append_dev(div, label3);
     			append_dev(label3, input3);
 
-    			set_input_value(input3, ctx.d);
+    			input3.checked = ctx.move_light;
 
-    			append_dev(label3, t10);
     			append_dev(label3, t11);
-    			append_dev(label3, t12);
+    			append_dev(div, t12);
+    			append_dev(div, label4);
+    			append_dev(label4, input4);
+
+    			set_input_value(input4, ctx.w);
+
+    			append_dev(label4, t13);
+    			append_dev(label4, t14);
+    			append_dev(label4, t15);
+    			append_dev(div, t16);
+    			append_dev(div, label5);
+    			append_dev(label5, input5);
+
+    			set_input_value(input5, ctx.h);
+
+    			append_dev(label5, t17);
+    			append_dev(label5, t18);
+    			append_dev(label5, t19);
+    			append_dev(div, t20);
+    			append_dev(div, label6);
+    			append_dev(label6, input6);
+
+    			set_input_value(input6, ctx.d);
+
+    			append_dev(label6, t21);
+    			append_dev(label6, t22);
+    			append_dev(label6, t23);
+    			append_dev(div, t24);
+    			append_dev(div, label7);
+    			append_dev(label7, input7);
+
+    			set_input_value(input7, ctx.radius);
+
+    			append_dev(label7, t25);
+    			append_dev(label7, t26);
+    			append_dev(label7, t27);
     			current = true;
     		},
 
     		p: function update(changed, ctx) {
     			var gl_scene_changes = {};
-    			if (changed.$$scope || changed.h || changed.w || changed.d) gl_scene_changes.$$scope = { changed, ctx };
+    			if (changed.$$scope || changed.light || changed.light_color || changed.show_light || changed.h || changed.w || changed.d || changed.radius || changed.color) gl_scene_changes.$$scope = { changed, ctx };
     			gl_scene.$set(gl_scene_changes);
 
     			if (changed.color) set_input_value(input0, ctx.color);
-    			if (changed.w) set_input_value(input1, ctx.w);
+
+    			if (!current || changed.color) {
+    				set_data_dev(t2, ctx.color);
+    			}
+
+    			if (changed.light_color) set_input_value(input1, ctx.light_color);
+
+    			if (!current || changed.light_color) {
+    				set_data_dev(t6, ctx.light_color);
+    			}
+
+    			if (changed.show_light) input2.checked = ctx.show_light;
+    			if (changed.move_light) input3.checked = ctx.move_light;
+    			if (changed.w) set_input_value(input4, ctx.w);
 
     			if (!current || changed.w) {
-    				set_data_dev(t3, ctx.w);
+    				set_data_dev(t14, ctx.w);
     			}
 
-    			if (changed.h) set_input_value(input2, ctx.h);
+    			if (changed.h) set_input_value(input5, ctx.h);
 
     			if (!current || changed.h) {
-    				set_data_dev(t7, ctx.h);
+    				set_data_dev(t18, ctx.h);
     			}
 
-    			if (changed.d) set_input_value(input3, ctx.d);
+    			if (changed.d) set_input_value(input6, ctx.d);
 
     			if (!current || changed.d) {
-    				set_data_dev(t11, ctx.d);
+    				set_data_dev(t22, ctx.d);
+    			}
+
+    			if (changed.radius) set_input_value(input7, ctx.radius);
+
+    			if (!current || changed.radius) {
+    				set_data_dev(t26, ctx.radius);
     			}
     		},
 
@@ -5635,15 +6132,19 @@ var app = (function () {
     	return block;
     }
 
-    let radius = 0.2;
-
     function instance$b($$self, $$props, $$invalidate) {
     	
 
-     let { color = '#ff3e00' } = $$props;
+     let { color = '#ff3e00', name = 'App' } = $$props;
      let w = 1;
      let h = 1;
      let d = 1;
+     let radius = 0.1;
+     let move_light = true;
+     let show_light = true;
+     let light_color = '#80ffff';
+
+     const from_hex = hex => parseInt(hex.slice(1), 16);
 
      const light = {
          x: 3,
@@ -5657,9 +6158,11 @@ var app = (function () {
          const loop = () => {
        frame = requestAnimationFrame(loop);
 
-             /* light.x = 3 * Math.sin(Date.now() * 0.001);
-              * light.y = 2.5 + 2 * Math.sin(Date.now() * 0.0004);
-              * light.z = 3 * Math.cos(Date.now() * 0.002);*/
+             if (move_light) {
+                 $$invalidate('light', light.x = 3 * Math.sin(Date.now() * 0.001), light);
+                 $$invalidate('light', light.y = 2.5 + 2 * Math.sin(Date.now() * 0.0004), light);
+                 $$invalidate('light', light.z = 3 * Math.cos(Date.now() * 0.002), light);
+             }
          };
 
          loop();
@@ -5667,7 +6170,7 @@ var app = (function () {
          return () => cancelAnimationFrame(frame);
      });
 
-    	const writable_props = ['color'];
+    	const writable_props = ['color', 'name'];
     	Object.keys($$props).forEach(key => {
     		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<App> was created with unknown prop '${key}'`);
     	});
@@ -5677,54 +6180,90 @@ var app = (function () {
     		$$invalidate('color', color);
     	}
 
-    	function input1_change_input_handler() {
+    	function input1_input_handler() {
+    		light_color = this.value;
+    		$$invalidate('light_color', light_color);
+    	}
+
+    	function input2_change_handler() {
+    		show_light = this.checked;
+    		$$invalidate('show_light', show_light);
+    	}
+
+    	function input3_change_handler() {
+    		move_light = this.checked;
+    		$$invalidate('move_light', move_light);
+    	}
+
+    	function input4_change_input_handler() {
     		w = to_number(this.value);
     		$$invalidate('w', w);
     	}
 
-    	function input2_change_input_handler() {
+    	function input5_change_input_handler() {
     		h = to_number(this.value);
     		$$invalidate('h', h);
     	}
 
-    	function input3_change_input_handler() {
+    	function input6_change_input_handler() {
     		d = to_number(this.value);
     		$$invalidate('d', d);
     	}
 
+    	function input7_change_input_handler() {
+    		radius = to_number(this.value);
+    		$$invalidate('radius', radius);
+    	}
+
     	$$self.$set = $$props => {
     		if ('color' in $$props) $$invalidate('color', color = $$props.color);
+    		if ('name' in $$props) $$invalidate('name', name = $$props.name);
     	};
 
     	$$self.$capture_state = () => {
-    		return { color, w, h, d, radius };
+    		return { color, name, w, h, d, radius, move_light, show_light, light_color };
     	};
 
     	$$self.$inject_state = $$props => {
     		if ('color' in $$props) $$invalidate('color', color = $$props.color);
+    		if ('name' in $$props) $$invalidate('name', name = $$props.name);
     		if ('w' in $$props) $$invalidate('w', w = $$props.w);
     		if ('h' in $$props) $$invalidate('h', h = $$props.h);
     		if ('d' in $$props) $$invalidate('d', d = $$props.d);
     		if ('radius' in $$props) $$invalidate('radius', radius = $$props.radius);
+    		if ('move_light' in $$props) $$invalidate('move_light', move_light = $$props.move_light);
+    		if ('show_light' in $$props) $$invalidate('show_light', show_light = $$props.show_light);
+    		if ('light_color' in $$props) $$invalidate('light_color', light_color = $$props.light_color);
     	};
 
     	return {
     		color,
+    		name,
     		w,
     		h,
     		d,
+    		radius,
+    		move_light,
+    		show_light,
+    		light_color,
+    		from_hex,
     		light,
+    		Math,
     		input0_input_handler,
-    		input1_change_input_handler,
-    		input2_change_input_handler,
-    		input3_change_input_handler
+    		input1_input_handler,
+    		input2_change_handler,
+    		input3_change_handler,
+    		input4_change_input_handler,
+    		input5_change_input_handler,
+    		input6_change_input_handler,
+    		input7_change_input_handler
     	};
     }
 
     class App extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$b, create_fragment$b, safe_not_equal, ["color"]);
+    		init(this, options, instance$b, create_fragment$b, safe_not_equal, ["color", "name"]);
     		dispatch_dev("SvelteRegisterComponent", { component: this, tagName: "App", options, id: create_fragment$b.name });
     	}
 
@@ -5733,6 +6272,14 @@ var app = (function () {
     	}
 
     	set color(value) {
+    		throw new Error("<App>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get name() {
+    		throw new Error("<App>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set name(value) {
     		throw new Error("<App>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
     }
