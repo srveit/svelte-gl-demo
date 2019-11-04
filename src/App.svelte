@@ -2,15 +2,17 @@
  import { onMount } from 'svelte';
  import * as GL from '@sveltejs/gl';
  import Cube from './Cube.svelte';
+ import LabeledCube from './LabeledCube.svelte';
 
- export let color = '#ff3e00';
+ export let color = '#101010';
  export let name = 'App';
  let w = 1;
  let h = 1;
  let d = 1;
- let radius = 0.1;
- let move_light = true;
- let show_light = true;
+ let radius = 0.06;
+ let margin = 0.08;
+ let move_light = false;
+ let show_light = false;
  let light_color = '#80ffff';
 
  const from_hex = hex => parseInt(hex.slice(1), 16);
@@ -19,6 +21,15 @@
      x: 3,
      y: 4.5,
      z: 3
+ };
+
+ const label_uniforms = {
+     front:  {color: 0xf1f5fe, specularity: 0.3}, // white
+     left:   {color: 0x8080ff, specularity: 0.3}, // blue
+     top:    {color: 0xd4001e, specularity: 0.3}, // red
+     right:  {color: 0x008452, specularity: 0.3}, // green
+     bottom: {color: 0xf46c3a, specularity: 0.3}, // orange
+     back:   {color: 0xf7e42d, specularity: 0.3}  // yellow
  };
 
  onMount(() => {
@@ -47,7 +58,7 @@
     <GL.PerspectiveCamera {location} lookAt="center" near={0.01} far={1000}/>
   </GL.OrbitControls>
 
-  <GL.AmbientLight intensity={0.3}/>
+  <GL.AmbientLight intensity={1.0}/>
   <GL.DirectionalLight direction={[-1,-1,-1]} intensity={0.5}/>
 
   <!-- floor -->
@@ -59,7 +70,7 @@
     uniforms={{ color: 0xffffff }}
   />
 
-
+<!--
   <Cube
     location={[0, h/2, 0]}
     rotation={[0,20,0]}
@@ -67,7 +78,16 @@
     radius={radius}
     uniforms={{ color: from_hex(color), alpha: 1.0 }}
   />
-
+-->
+  <LabeledCube
+    location={[0, h/2, 0]}
+    rotation={[0,20,0]}
+    scale={[w,h,d]}
+    radius={radius}
+    margin={margin}
+    label_uniforms={label_uniforms}
+    uniforms={{ color: from_hex(color), specularity: 0.4, alpha: 1.0 }}
+  />
   <!-- moving light -->
   <GL.Group location={[light.x,light.y,light.z]}>
     {#if show_light}
