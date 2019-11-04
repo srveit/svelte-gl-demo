@@ -4,7 +4,7 @@
  import Cube from './Cube.svelte';
  import LabeledCube from './LabeledCube.svelte';
 
- export let color = '#101010';
+ export let color = '#ff3e00';
  export let name = 'App';
  let w = 1;
  let h = 1;
@@ -13,7 +13,8 @@
  let margin = 0.08;
  let move_light = false;
  let show_light = false;
- let light_color = '#80ffff';
+ let show_labeled = false;
+ let light_color = '#ffffff';
 
  const from_hex = hex => parseInt(hex.slice(1), 16);
 
@@ -58,7 +59,7 @@
     <GL.PerspectiveCamera {location} lookAt="center" near={0.01} far={1000}/>
   </GL.OrbitControls>
 
-  <GL.AmbientLight intensity={1.0}/>
+  <GL.AmbientLight intensity={0.5}/>
   <GL.DirectionalLight direction={[-1,-1,-1]} intensity={0.5}/>
 
   <!-- floor -->
@@ -70,24 +71,25 @@
     uniforms={{ color: 0xffffff }}
   />
 
-<!--
-  <Cube
-    location={[0, h/2, 0]}
-    rotation={[0,20,0]}
-    scale={[w,h,d]}
-    radius={radius}
-    uniforms={{ color: from_hex(color), alpha: 1.0 }}
-  />
--->
-  <LabeledCube
-    location={[0, h/2, 0]}
-    rotation={[0,20,0]}
-    scale={[w,h,d]}
-    radius={radius}
-    margin={margin}
-    label_uniforms={label_uniforms}
-    uniforms={{ color: from_hex(color), specularity: 0.4, alpha: 1.0 }}
-  />
+  {#if show_labeled}
+    <LabeledCube
+      location={[0, h/2, 0]}
+      rotation={[0,20,0]}
+      scale={[w,h,d]}
+      radius={radius}
+      margin={margin}
+      label_uniforms={label_uniforms}
+      uniforms={{ color: 0x101010, specularity: 0.4, alpha: 1.0 }}
+    />
+  {:else}
+    <Cube
+      location={[0, h/2, 0]}
+      rotation={[0,20,0]}
+      scale={[w,h,d]}
+      radius={radius}
+      uniforms={{ color: from_hex(color), alpha: 1.0 }}
+    />
+  {/if}
   <!-- moving light -->
   <GL.Group location={[light.x,light.y,light.z]}>
     {#if show_light}
@@ -118,6 +120,9 @@
   </label>
   <label>
     <input type="checkbox" bind:checked={move_light} /> Move light?
+  </label>
+  <label>
+    <input type="checkbox" bind:checked={show_labeled} /> Labeled?
   </label>
   <label>
     <input type="range" bind:value={w} min={0.1} max={5} step={0.1}> width ({w})
