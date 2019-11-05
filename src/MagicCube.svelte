@@ -28,12 +28,12 @@
    margin = 0.08,
    uniforms = { color: 0x101010, specularity: 0.4, alpha: 1.0 },
    label_uniforms = {
-       front:  {color: 0xf1f5fe, specularity: 0.3}, // white
-       left:   {color: 0x8080ff, specularity: 0.3}, // blue
-       top:    {color: 0xd4001e, specularity: 0.3}, // red
-       right:  {color: 0x008452, specularity: 0.3}, // green
-       bottom: {color: 0xf46c3a, specularity: 0.3}, // orange
-       back:   {color: 0xf7e42d, specularity: 0.3}  // yellow
+       front:  {color: 0xffffff, specularity: 0.3}, // white
+       left:   {color: 0x0000ff, specularity: 0.3}, // blue
+       top:    {color: 0xff0000, specularity: 0.3}, // red
+       right:  {color: 0x00ff00, specularity: 0.3}, // green
+       bottom: {color: 0xffa500, specularity: 0.3}, // orange
+       back:   {color: 0xffff00, specularity: 0.3}  // yellow
    },
    cubesLabeledSides = [
        [

@@ -6529,12 +6529,12 @@ var app = (function () {
        margin = 0.08,
        uniforms = { color: 0x101010, specularity: 0.4, alpha: 1.0 },
        label_uniforms = {
-           front:  {color: 0xf1f5fe, specularity: 0.3}, // white
-           left:   {color: 0x8080ff, specularity: 0.3}, // blue
-           top:    {color: 0xd4001e, specularity: 0.3}, // red
-           right:  {color: 0x008452, specularity: 0.3}, // green
-           bottom: {color: 0xf46c3a, specularity: 0.3}, // orange
-           back:   {color: 0xf7e42d, specularity: 0.3}  // yellow
+           front:  {color: 0xffffff, specularity: 0.3}, // white
+           left:   {color: 0x0000ff, specularity: 0.3}, // blue
+           top:    {color: 0xff0000, specularity: 0.3}, // red
+           right:  {color: 0x00ff00, specularity: 0.3}, // green
+           bottom: {color: 0xffa500, specularity: 0.3}, // orange
+           back:   {color: 0xffff00, specularity: 0.3}  // yellow
        },
        cubesLabeledSides = [
            [
@@ -6735,11 +6735,16 @@ var app = (function () {
 
     // (104:4) {:else}
     function create_else_block(ctx) {
-    	var current;
+    	var t, current;
+
+    	var gl_ambientlight = new AmbientLight({
+    		props: { intensity: 1.0 },
+    		$$inline: true
+    	});
 
     	var magiccube = new MagicCube({
     		props: {
-    		location: [0, ctx.h/2 * 2, 0],
+    		location: [0, ctx.h/2 * 2.8, 0],
     		rotation: [0,20,0],
     		scale: [ctx.w * 2,ctx.h * 2,ctx.d * 2],
     		face_angle: ctx.face.angle
@@ -6749,17 +6754,21 @@ var app = (function () {
 
     	const block = {
     		c: function create() {
+    			gl_ambientlight.$$.fragment.c();
+    			t = space();
     			magiccube.$$.fragment.c();
     		},
 
     		m: function mount(target, anchor) {
+    			mount_component(gl_ambientlight, target, anchor);
+    			insert_dev(target, t, anchor);
     			mount_component(magiccube, target, anchor);
     			current = true;
     		},
 
     		p: function update(changed, ctx) {
     			var magiccube_changes = {};
-    			if (changed.h) magiccube_changes.location = [0, ctx.h/2 * 2, 0];
+    			if (changed.h) magiccube_changes.location = [0, ctx.h/2 * 2.8, 0];
     			if (changed.w || changed.h || changed.d) magiccube_changes.scale = [ctx.w * 2,ctx.h * 2,ctx.d * 2];
     			if (changed.face) magiccube_changes.face_angle = ctx.face.angle;
     			magiccube.$set(magiccube_changes);
@@ -6767,17 +6776,26 @@ var app = (function () {
 
     		i: function intro(local) {
     			if (current) return;
+    			transition_in(gl_ambientlight.$$.fragment, local);
+
     			transition_in(magiccube.$$.fragment, local);
 
     			current = true;
     		},
 
     		o: function outro(local) {
+    			transition_out(gl_ambientlight.$$.fragment, local);
     			transition_out(magiccube.$$.fragment, local);
     			current = false;
     		},
 
     		d: function destroy(detaching) {
+    			destroy_component(gl_ambientlight, detaching);
+
+    			if (detaching) {
+    				detach_dev(t);
+    			}
+
     			destroy_component(magiccube, detaching);
     		}
     	};
@@ -6894,7 +6912,7 @@ var app = (function () {
     	return block;
     }
 
-    // (114:4) {#if show_light}
+    // (115:4) {#if show_light}
     function create_if_block$2(ctx) {
     	var current;
 
@@ -6940,11 +6958,11 @@ var app = (function () {
     			destroy_component(gl_mesh, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$2.name, type: "if", source: "(114:4) {#if show_light}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$2.name, type: "if", source: "(115:4) {#if show_light}", ctx });
     	return block;
     }
 
-    // (113:2) <GL.Group location={[light.x,light.y,light.z]}>
+    // (114:2) <GL.Group location={[light.x,light.y,light.z]}>
     function create_default_slot_1$1(ctx) {
     	var t, current;
 
@@ -7022,7 +7040,7 @@ var app = (function () {
     			destroy_component(gl_pointlight, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_1$1.name, type: "slot", source: "(113:2) <GL.Group location={[light.x,light.y,light.z]}>", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_1$1.name, type: "slot", source: "(114:2) <GL.Group location={[light.x,light.y,light.z]}>", ctx });
     	return block;
     }
 
@@ -7047,7 +7065,7 @@ var app = (function () {
     	});
 
     	var gl_ambientlight = new AmbientLight({
-    		props: { intensity: 0.5 },
+    		props: { intensity: 0.7 },
     		$$inline: true
     	});
 
@@ -7239,7 +7257,7 @@ var app = (function () {
     	return block;
     }
 
-    // (143:2) {#each ['Cube', 'LabeledCube', 'MagicCube'] as cubeType}
+    // (144:2) {#each ['Cube', 'LabeledCube', 'MagicCube'] as cubeType}
     function create_each_block$4(ctx) {
     	var label, input, t0, t1, dispose;
 
@@ -7254,8 +7272,8 @@ var app = (function () {
     			input.__value = ctx.cubeType;
     			input.value = input.__value;
     			attr_dev(input, "class", "svelte-h1ar7z");
-    			add_location(input, file$1, 144, 6, 3716);
-    			add_location(label, file$1, 143, 4, 3702);
+    			add_location(input, file$1, 145, 6, 3757);
+    			add_location(label, file$1, 144, 4, 3743);
     			dispose = listen_dev(input, "change", ctx.input_change_handler);
     		},
 
@@ -7282,7 +7300,7 @@ var app = (function () {
     			dispose();
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$4.name, type: "each", source: "(143:2) {#each ['Cube', 'LabeledCube', 'MagicCube'] as cubeType}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$4.name, type: "each", source: "(144:2) {#each ['Cube', 'LabeledCube', 'MagicCube'] as cubeType}", ctx });
     	return block;
     }
 
@@ -7361,44 +7379,44 @@ var app = (function () {
     			t28 = text(")");
     			attr_dev(input0, "type", "color");
     			set_style(input0, "height", "40px");
-    			add_location(input0, file$1, 131, 4, 3261);
-    			add_location(label0, file$1, 130, 2, 3249);
+    			add_location(input0, file$1, 132, 4, 3302);
+    			add_location(label0, file$1, 131, 2, 3290);
     			attr_dev(input1, "type", "color");
     			set_style(input1, "height", "40px");
-    			add_location(input1, file$1, 134, 4, 3361);
-    			add_location(label1, file$1, 133, 2, 3349);
+    			add_location(input1, file$1, 135, 4, 3402);
+    			add_location(label1, file$1, 134, 2, 3390);
     			attr_dev(input2, "type", "checkbox");
-    			add_location(input2, file$1, 137, 4, 3475);
-    			add_location(label2, file$1, 136, 2, 3463);
+    			add_location(input2, file$1, 138, 4, 3516);
+    			add_location(label2, file$1, 137, 2, 3504);
     			attr_dev(input3, "type", "checkbox");
-    			add_location(input3, file$1, 140, 4, 3564);
-    			add_location(label3, file$1, 139, 2, 3552);
+    			add_location(input3, file$1, 141, 4, 3605);
+    			add_location(label3, file$1, 140, 2, 3593);
     			attr_dev(input4, "type", "range");
     			attr_dev(input4, "min", 0.1);
     			attr_dev(input4, "max", 5);
     			attr_dev(input4, "step", 0.1);
-    			add_location(input4, file$1, 148, 4, 3830);
-    			add_location(label4, file$1, 147, 2, 3818);
+    			add_location(input4, file$1, 149, 4, 3871);
+    			add_location(label4, file$1, 148, 2, 3859);
     			attr_dev(input5, "type", "range");
     			attr_dev(input5, "min", 0.1);
     			attr_dev(input5, "max", 5);
     			attr_dev(input5, "step", 0.1);
-    			add_location(input5, file$1, 152, 4, 3933);
-    			add_location(label5, file$1, 151, 2, 3921);
+    			add_location(input5, file$1, 153, 4, 3974);
+    			add_location(label5, file$1, 152, 2, 3962);
     			attr_dev(input6, "type", "range");
     			attr_dev(input6, "min", 0.1);
     			attr_dev(input6, "max", 5);
     			attr_dev(input6, "step", 0.1);
-    			add_location(input6, file$1, 156, 4, 4037);
-    			add_location(label6, file$1, 155, 2, 4025);
+    			add_location(input6, file$1, 157, 4, 4078);
+    			add_location(label6, file$1, 156, 2, 4066);
     			attr_dev(input7, "type", "range");
     			attr_dev(input7, "min", 0.01);
     			attr_dev(input7, "max", 0.5);
     			attr_dev(input7, "step", 0.01);
-    			add_location(input7, file$1, 160, 4, 4140);
-    			add_location(label7, file$1, 159, 2, 4128);
+    			add_location(input7, file$1, 161, 4, 4181);
+    			add_location(label7, file$1, 160, 2, 4169);
     			attr_dev(div, "class", "controls svelte-h1ar7z");
-    			add_location(div, file$1, 129, 0, 3224);
+    			add_location(div, file$1, 130, 0, 3265);
 
     			dispose = [
     				listen_dev(input0, "input", ctx.input0_input_handler),
@@ -7626,11 +7644,11 @@ var app = (function () {
 
      const label_uniforms = {
          front:  {color: 0xf1f5fe, specularity: 0.3}, // white
-         left:   {color: 0x8080ff, specularity: 0.3}, // blue
+         left:   {color: 0x2040ff, specularity: 0.3}, // blue
          top:    {color: 0xd4001e, specularity: 0.3}, // red
          right:  {color: 0x008452, specularity: 0.3}, // green
-         bottom: {color: 0xf46c3a, specularity: 0.3}, // orange
-         back:   {color: 0xf7e42d, specularity: 0.3}  // yellow
+         bottom: {color: 0xffa800, specularity: 0.3}, // orange
+         back:   {color: 0xf7e400, specularity: 0.3}  // yellow
      };
 
      const face = {
