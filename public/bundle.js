@@ -4236,7 +4236,6 @@ var app = (function () {
     const PI = Math.PI;
     const PI2 = PI * 2;
 
-    // TODO use angles for chords
     function create_smooth_geometry(turns, bands, turns_chord, bands_chord) {
     	const num_vertices = (turns + 1) * (bands + 1);
     	const num_faces_per_turn = 2 * bands;
@@ -4324,15 +4323,12 @@ var app = (function () {
     const PI$1 = Math.PI;
     const PI2$1 = PI$1 * 2;
 
-    // TODO use angle for chord
-    // TODO fix normals
     function create_smooth_geometry$1(turns, turns_chord) {
     	const num_vertices = (turns + 1) * (1 + 1);
     	const num_faces_per_turn = 2 * 1;
     	const num_faces = num_faces_per_turn * turns;
 
-    	const position = new Float32Array(num_vertices * 3);
-    	const normal = new Float32Array(num_vertices * 3);
+    	const position = new Float32Array(num_vertices * 3); // doubles as normal
     	const uv = new Float32Array(num_vertices * 2);
     	const index = new Uint32Array(num_faces * 3);
 
@@ -4347,11 +4343,8 @@ var app = (function () {
     			const y = 0.5 - v;
     			const z = Math.sin(u * PI2$1);
 
-    			normal[position_index] = x;
     			position[position_index++] = x;
-    			normal[position_index] = 0;
     			position[position_index++] = y;
-    			normal[position_index] = z;
     			position[position_index++] = z;
 
     			uv[uv_index++] = u;
@@ -4379,7 +4372,7 @@ var app = (function () {
     			size: 3
     		},
     		normal: {
-    			data: normal,
+    			data: position,
     			size: 3
     		},
     		uv: {
@@ -6091,7 +6084,7 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (69:8) {#each [0, 1, 2] as column}
+    // (72:8) {#each [0, 1, 2] as column}
     function create_each_block_2(ctx) {
     	var current;
 
@@ -6136,11 +6129,11 @@ var app = (function () {
     			destroy_component(labeledcube, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_2.name, type: "each", source: "(69:8) {#each [0, 1, 2] as column}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_2.name, type: "each", source: "(72:8) {#each [0, 1, 2] as column}", ctx });
     	return block;
     }
 
-    // (68:6) {#each [0, 1, 2] as row}
+    // (71:6) {#each [0, 1, 2] as row}
     function create_each_block_1$1(ctx) {
     	var each_1_anchor, current;
 
@@ -6227,11 +6220,11 @@ var app = (function () {
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_1$1.name, type: "each", source: "(68:6) {#each [0, 1, 2] as row}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_1$1.name, type: "each", source: "(71:6) {#each [0, 1, 2] as row}", ctx });
     	return block;
     }
 
-    // (64:4) <GL.Group       location = {facePositions[face].location}       rotation = {facePositions[face].rotation}     >
+    // (67:4) <GL.Group       location = {facePositions[face].location}       rotation = {facePositions[face].rotation}     >
     function create_default_slot_1(ctx) {
     	var t, current;
 
@@ -6318,11 +6311,11 @@ var app = (function () {
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_1.name, type: "slot", source: "(64:4) <GL.Group       location = {facePositions[face].location}       rotation = {facePositions[face].rotation}     >", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_1.name, type: "slot", source: "(67:4) <GL.Group       location = {facePositions[face].location}       rotation = {facePositions[face].rotation}     >", ctx });
     	return block;
     }
 
-    // (63:2) {#each [0, 1, 2] as face}
+    // (66:2) {#each [0, 1, 2] as face}
     function create_each_block$3(ctx) {
     	var current;
 
@@ -6370,11 +6363,11 @@ var app = (function () {
     			destroy_component(gl_group, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$3.name, type: "each", source: "(63:2) {#each [0, 1, 2] as face}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$3.name, type: "each", source: "(66:2) {#each [0, 1, 2] as face}", ctx });
     	return block;
     }
 
-    // (55:0) <GL.Group   {location}   {lookAt}   {up}   {rotation}   {scale} >
+    // (58:0) <GL.Group   {location}   {lookAt}   {up}   {rotation}   {scale} >
     function create_default_slot$3(ctx) {
     	var each_1_anchor, current;
 
@@ -6461,7 +6454,7 @@ var app = (function () {
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$3.name, type: "slot", source: "(55:0) <GL.Group   {location}   {lookAt}   {up}   {rotation}   {scale} >", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$3.name, type: "slot", source: "(58:0) <GL.Group   {location}   {lookAt}   {up}   {rotation}   {scale} >", ctx });
     	return block;
     }
 
@@ -6598,10 +6591,12 @@ var app = (function () {
                  rotation: [0, 0, face_angle]
              },
              {
-                 location: [0, 0, 0]
+                 location: [0, 0, 0],
+                 rotation: [0, 0, 0]
              },
              {
-                 location: [0, 0, -1/3]
+                 location: [0, 0, -1/3],
+                 rotation: [0, 0, 0]
              }
          ]); }
     	};
@@ -6766,6 +6761,7 @@ var app = (function () {
     			var magiccube_changes = {};
     			if (changed.h) magiccube_changes.location = [0, ctx.h/2 * 2, 0];
     			if (changed.w || changed.h || changed.d) magiccube_changes.scale = [ctx.w * 2,ctx.h * 2,ctx.d * 2];
+    			if (changed.face) magiccube_changes.face_angle = ctx.face.angle;
     			magiccube.$set(magiccube_changes);
     		},
 
@@ -7258,8 +7254,8 @@ var app = (function () {
     			input.__value = ctx.cubeType;
     			input.value = input.__value;
     			attr_dev(input, "class", "svelte-h1ar7z");
-    			add_location(input, file$1, 144, 6, 3724);
-    			add_location(label, file$1, 143, 4, 3710);
+    			add_location(input, file$1, 144, 6, 3716);
+    			add_location(label, file$1, 143, 4, 3702);
     			dispose = listen_dev(input, "change", ctx.input_change_handler);
     		},
 
@@ -7365,44 +7361,44 @@ var app = (function () {
     			t28 = text(")");
     			attr_dev(input0, "type", "color");
     			set_style(input0, "height", "40px");
-    			add_location(input0, file$1, 131, 4, 3269);
-    			add_location(label0, file$1, 130, 2, 3257);
+    			add_location(input0, file$1, 131, 4, 3261);
+    			add_location(label0, file$1, 130, 2, 3249);
     			attr_dev(input1, "type", "color");
     			set_style(input1, "height", "40px");
-    			add_location(input1, file$1, 134, 4, 3369);
-    			add_location(label1, file$1, 133, 2, 3357);
+    			add_location(input1, file$1, 134, 4, 3361);
+    			add_location(label1, file$1, 133, 2, 3349);
     			attr_dev(input2, "type", "checkbox");
-    			add_location(input2, file$1, 137, 4, 3483);
-    			add_location(label2, file$1, 136, 2, 3471);
+    			add_location(input2, file$1, 137, 4, 3475);
+    			add_location(label2, file$1, 136, 2, 3463);
     			attr_dev(input3, "type", "checkbox");
-    			add_location(input3, file$1, 140, 4, 3572);
-    			add_location(label3, file$1, 139, 2, 3560);
+    			add_location(input3, file$1, 140, 4, 3564);
+    			add_location(label3, file$1, 139, 2, 3552);
     			attr_dev(input4, "type", "range");
     			attr_dev(input4, "min", 0.1);
     			attr_dev(input4, "max", 5);
     			attr_dev(input4, "step", 0.1);
-    			add_location(input4, file$1, 148, 4, 3838);
-    			add_location(label4, file$1, 147, 2, 3826);
+    			add_location(input4, file$1, 148, 4, 3830);
+    			add_location(label4, file$1, 147, 2, 3818);
     			attr_dev(input5, "type", "range");
     			attr_dev(input5, "min", 0.1);
     			attr_dev(input5, "max", 5);
     			attr_dev(input5, "step", 0.1);
-    			add_location(input5, file$1, 152, 4, 3941);
-    			add_location(label5, file$1, 151, 2, 3929);
+    			add_location(input5, file$1, 152, 4, 3933);
+    			add_location(label5, file$1, 151, 2, 3921);
     			attr_dev(input6, "type", "range");
     			attr_dev(input6, "min", 0.1);
     			attr_dev(input6, "max", 5);
     			attr_dev(input6, "step", 0.1);
-    			add_location(input6, file$1, 156, 4, 4045);
-    			add_location(label6, file$1, 155, 2, 4033);
+    			add_location(input6, file$1, 156, 4, 4037);
+    			add_location(label6, file$1, 155, 2, 4025);
     			attr_dev(input7, "type", "range");
     			attr_dev(input7, "min", 0.01);
     			attr_dev(input7, "max", 0.5);
     			attr_dev(input7, "step", 0.01);
-    			add_location(input7, file$1, 160, 4, 4148);
-    			add_location(label7, file$1, 159, 2, 4136);
+    			add_location(input7, file$1, 160, 4, 4140);
+    			add_location(label7, file$1, 159, 2, 4128);
     			attr_dev(div, "class", "controls svelte-h1ar7z");
-    			add_location(div, file$1, 129, 0, 3232);
+    			add_location(div, file$1, 129, 0, 3224);
 
     			dispose = [
     				listen_dev(input0, "input", ctx.input0_input_handler),
@@ -7506,7 +7502,7 @@ var app = (function () {
 
     		p: function update(changed, ctx) {
     			var gl_scene_changes = {};
-    			if (changed.$$scope || changed.light || changed.light_color || changed.show_light || changed.showCubeType || changed.h || changed.w || changed.d || changed.radius || changed.color) gl_scene_changes.$$scope = { changed, ctx };
+    			if (changed.$$scope || changed.light || changed.light_color || changed.show_light || changed.showCubeType || changed.h || changed.w || changed.d || changed.radius || changed.color || changed.face) gl_scene_changes.$$scope = { changed, ctx };
     			gl_scene.$set(gl_scene_changes);
 
     			if (changed.color) set_input_value(input0, ctx.color);
@@ -7646,6 +7642,10 @@ var app = (function () {
 
          const loop = () => {
        frame = requestAnimationFrame(loop);
+             if (rotate_face) {
+                 $$invalidate('face', face.angle = face.angle + 1, face);
+    //             face_angle = 3 * Math.sin(Date.now() * 0.1);
+             }
              if (move_light) {
                  $$invalidate('light', light.x = 3 * Math.sin(Date.now() * 0.001), light);
                  $$invalidate('light', light.y = 2.5 + 2 * Math.sin(Date.now() * 0.0004), light);

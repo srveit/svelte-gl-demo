@@ -48,8 +48,8 @@
      const loop = () => {
    frame = requestAnimationFrame(loop);
          if (rotate_face) {
-//             face.angle = face.angle + 0.001;
-//             face_angle = 3 * Math.sin(Date.now() * 0.001);
+             face.angle = face.angle + 1;
+//             face_angle = 3 * Math.sin(Date.now() * 0.1);
          }
          if (move_light) {
              light.x = 3 * Math.sin(Date.now() * 0.001);

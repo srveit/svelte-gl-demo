@@ -15,10 +15,12 @@
          rotation: [0, 0, face_angle]
      },
      {
-         location: [0, 0, 0]
+         location: [0, 0, 0],
+         rotation: [0, 0, 0]
      },
      {
-         location: [0, 0, -1/3]
+         location: [0, 0, -1/3],
+         rotation: [0, 0, 0]
      }
  ];
 
@@ -50,6 +52,7 @@
            [['back', 'left', 'bottom'], ['back', 'bottom'], ['back', 'bottom', 'right']]
        ]
    ];
+
 </script>
 
 <GL.Group

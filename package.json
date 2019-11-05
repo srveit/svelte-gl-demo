@@ -19,6 +19,6 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public --single",
-    "start:dev": "sirv public --single --dev"
+    "start:dev": "sirv public --single --dev --host 0.0.0.0"
   }
 }
