@@ -5,7 +5,8 @@
  export let radius = 0.1;
  export let margin = 0.2;
  export let label_radius = 0.06;
-  export let label_uniforms = {};
+ export let label_uniforms = {};
+ export let labeled_sides = ['right', 'left', 'top', 'bottom', 'front', 'back'];
 
   // pass to Group
   export let location = undefined;
@@ -21,11 +22,7 @@
   export let depthTest = undefined;
   export let transparent = undefined;
 
-  $: scale_array = typeof scale === 'number' ? [scale, scale, scale] : scale;
-  $: w = scale_array[0];
- $: h = scale_array[1];
- $: d = scale_array[2];
-
+  $: [w, h, d] = typeof scale === 'number' ? [scale, scale, scale] : scale;
  
  $: faces = [
      {
@@ -76,7 +73,6 @@
  ];
 
  const spacing = 0.001;
- $: console.log(faces)
 </script>
 
 
@@ -99,7 +95,7 @@
   />
 
   {#each faces as face}
-  {#if face.uniforms}
+  {#if labeled_sides.includes(face.name)}
       <GL.Mesh
         geometry={GL.plane()}
         location={face.location}

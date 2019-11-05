@@ -3,6 +3,7 @@
  import * as GL from '@sveltejs/gl';
  import Cube from './Cube.svelte';
  import LabeledCube from './LabeledCube.svelte';
+ import MagicCube from './MagicCube.svelte';
 
  export let color = '#ff3e00';
  export let name = 'App';
@@ -15,6 +16,9 @@
  let show_light = false;
  let show_labeled = false;
  let light_color = '#ffffff';
+ let showCubeType = 'MagicCube';
+ let face_angle = 30;
+ let rotate_face = true;
 
  const from_hex = hex => parseInt(hex.slice(1), 16);
 
@@ -33,12 +37,20 @@
      back:   {color: 0xf7e42d, specularity: 0.3}  // yellow
  };
 
+ const face = {
+     angle: 20
+ };
+ const face_increment = 1;
+
  onMount(() => {
      let frame;
 
      const loop = () => {
    frame = requestAnimationFrame(loop);
-
+         if (rotate_face) {
+//             face.angle = face.angle + 0.001;
+//             face_angle = 3 * Math.sin(Date.now() * 0.001);
+         }
          if (move_light) {
              light.x = 3 * Math.sin(Date.now() * 0.001);
              light.y = 2.5 + 2 * Math.sin(Date.now() * 0.0004);
@@ -71,7 +83,7 @@
     uniforms={{ color: 0xffffff }}
   />
 
-  {#if show_labeled}
+  {#if showCubeType === 'LabeledCube'}
     <LabeledCube
       location={[0, h/2, 0]}
       rotation={[0,20,0]}
@@ -81,13 +93,20 @@
       label_uniforms={label_uniforms}
       uniforms={{ color: 0x101010, specularity: 0.4, alpha: 1.0 }}
     />
-  {:else}
+    {:else if showCubeType === 'Cube'}
     <Cube
       location={[0, h/2, 0]}
       rotation={[0,20,0]}
       scale={[w,h,d]}
       radius={radius}
       uniforms={{ color: from_hex(color), alpha: 1.0 }}
+    />
+    {:else}
+    <MagicCube
+        location={[0, h/2 * 2, 0]}
+        rotation={[0,20,0]}
+        scale={[w * 2,h * 2,d * 2]}
+        face_angle={face.angle}
     />
   {/if}
   <!-- moving light -->
@@ -121,9 +140,11 @@
   <label>
     <input type="checkbox" bind:checked={move_light} /> Move light?
   </label>
-  <label>
-    <input type="checkbox" bind:checked={show_labeled} /> Labeled?
-  </label>
+  {#each ['Cube', 'LabeledCube', 'MagicCube'] as cubeType}
+    <label>
+      <input type="radio" value={cubeType} bind:group={showCubeType} /> {cubeType}
+    </label>
+  {/each}
   <label>
     <input type="range" bind:value={w} min={0.1} max={5} step={0.1}> width ({w})
   </label>
@@ -142,6 +163,9 @@
 </div>
 
 <style>
+  input[type='radio'] {
+    margin-right: 5px;
+  }
   .controls {
     position: absolute;
     top: 1em;

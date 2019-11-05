@@ -4236,6 +4236,7 @@ var app = (function () {
     const PI = Math.PI;
     const PI2 = PI * 2;
 
+    // TODO use angles for chords
     function create_smooth_geometry(turns, bands, turns_chord, bands_chord) {
     	const num_vertices = (turns + 1) * (bands + 1);
     	const num_faces_per_turn = 2 * bands;
@@ -4323,12 +4324,15 @@ var app = (function () {
     const PI$1 = Math.PI;
     const PI2$1 = PI$1 * 2;
 
+    // TODO use angle for chord
+    // TODO fix normals
     function create_smooth_geometry$1(turns, turns_chord) {
     	const num_vertices = (turns + 1) * (1 + 1);
     	const num_faces_per_turn = 2 * 1;
     	const num_faces = num_faces_per_turn * turns;
 
-    	const position = new Float32Array(num_vertices * 3); // doubles as normal
+    	const position = new Float32Array(num_vertices * 3);
+    	const normal = new Float32Array(num_vertices * 3);
     	const uv = new Float32Array(num_vertices * 2);
     	const index = new Uint32Array(num_faces * 3);
 
@@ -4343,8 +4347,11 @@ var app = (function () {
     			const y = 0.5 - v;
     			const z = Math.sin(u * PI2$1);
 
+    			normal[position_index] = x;
     			position[position_index++] = x;
+    			normal[position_index] = 0;
     			position[position_index++] = y;
+    			normal[position_index] = z;
     			position[position_index++] = z;
 
     			uv[uv_index++] = u;
@@ -4372,7 +4379,7 @@ var app = (function () {
     			size: 3
     		},
     		normal: {
-    			data: position,
+    			data: normal,
     			size: 3
     		},
     		uv: {
@@ -5032,7 +5039,7 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (80:2) {#each faces as face}
+    // (77:2) {#each faces as face}
     function create_each_block$1(ctx) {
     	var current;
 
@@ -5097,11 +5104,11 @@ var app = (function () {
     			destroy_component(cubeface, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$1.name, type: "each", source: "(80:2) {#each faces as face}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$1.name, type: "each", source: "(77:2) {#each faces as face}", ctx });
     	return block;
     }
 
-    // (73:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >
+    // (70:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >
     function create_default_slot$1(ctx) {
     	var each_1_anchor, current;
 
@@ -5188,7 +5195,7 @@ var app = (function () {
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$1.name, type: "slot", source: "(73:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$1.name, type: "slot", source: "(70:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >", ctx });
     	return block;
     }
 
@@ -5277,7 +5284,7 @@ var app = (function () {
     	};
 
     	$$self.$capture_state = () => {
-    		return { scale, radius, location, lookAt, up, rotation, vert, frag, uniforms, blend, depthTest, transparent, scale_array, w, h, d, faces };
+    		return { scale, radius, location, lookAt, up, rotation, vert, frag, uniforms, blend, depthTest, transparent, w, h, d, faces };
     	};
 
     	$$self.$inject_state = $$props => {
@@ -5293,20 +5300,16 @@ var app = (function () {
     		if ('blend' in $$props) $$invalidate('blend', blend = $$props.blend);
     		if ('depthTest' in $$props) $$invalidate('depthTest', depthTest = $$props.depthTest);
     		if ('transparent' in $$props) $$invalidate('transparent', transparent = $$props.transparent);
-    		if ('scale_array' in $$props) $$invalidate('scale_array', scale_array = $$props.scale_array);
     		if ('w' in $$props) $$invalidate('w', w = $$props.w);
     		if ('h' in $$props) $$invalidate('h', h = $$props.h);
     		if ('d' in $$props) $$invalidate('d', d = $$props.d);
     		if ('faces' in $$props) $$invalidate('faces', faces = $$props.faces);
     	};
 
-    	let scale_array, w, h, d, faces;
+    	let w, h, d, faces;
 
-    	$$self.$$.update = ($$dirty = { scale: 1, scale_array: 1, w: 1, h: 1, d: 1 }) => {
-    		if ($$dirty.scale) { $$invalidate('scale_array', scale_array = typeof scale === 'number' ? [scale, scale, scale] : scale); }
-    		if ($$dirty.scale_array) { $$invalidate('w', w = scale_array[0]); }
-    		if ($$dirty.scale_array) { $$invalidate('h', h = scale_array[1]); }
-    		if ($$dirty.scale_array) { $$invalidate('d', d = scale_array[2]); }
+    	$$self.$$.update = ($$dirty = { scale: 1, w: 1, h: 1, d: 1 }) => {
+    		if ($$dirty.scale) { $$invalidate('w', [w, h, d] = typeof scale === 'number' ? [scale, scale, scale] : scale, w, $$invalidate('h', h), $$invalidate('scale', scale), $$invalidate('d', d), $$invalidate('scale', scale)); }
     		if ($$dirty.w || $$dirty.h || $$dirty.d) { $$invalidate('faces', faces = [
              {
                  name: 'right',
@@ -5475,7 +5478,6 @@ var app = (function () {
     }
 
     /* src/LabeledCube.svelte generated by Svelte v3.12.1 */
-    const { console: console_1 } = globals;
 
     function get_each_context$2(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
@@ -5483,7 +5485,7 @@ var app = (function () {
     	return child_ctx;
     }
 
-    // (102:2) {#if face.uniforms}
+    // (98:2) {#if labeled_sides.includes(face.name)}
     function create_if_block$1(ctx) {
     	var current;
 
@@ -5543,15 +5545,15 @@ var app = (function () {
     			destroy_component(gl_mesh, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$1.name, type: "if", source: "(102:2) {#if face.uniforms}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$1.name, type: "if", source: "(98:2) {#if labeled_sides.includes(face.name)}", ctx });
     	return block;
     }
 
-    // (101:2) {#each faces as face}
+    // (97:2) {#each faces as face}
     function create_each_block$2(ctx) {
-    	var if_block_anchor, current;
+    	var show_if = ctx.labeled_sides.includes(ctx.face.name), if_block_anchor, current;
 
-    	var if_block = (ctx.face.uniforms) && create_if_block$1(ctx);
+    	var if_block = (show_if) && create_if_block$1(ctx);
 
     	const block = {
     		c: function create() {
@@ -5566,7 +5568,9 @@ var app = (function () {
     		},
 
     		p: function update(changed, ctx) {
-    			if (ctx.face.uniforms) {
+    			if (changed.labeled_sides || changed.faces) show_if = ctx.labeled_sides.includes(ctx.face.name);
+
+    			if (show_if) {
     				if (if_block) {
     					if_block.p(changed, ctx);
     					transition_in(if_block, 1);
@@ -5604,11 +5608,11 @@ var app = (function () {
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$2.name, type: "each", source: "(101:2) {#each faces as face}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$2.name, type: "each", source: "(97:2) {#each faces as face}", ctx });
     	return block;
     }
 
-    // (83:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >
+    // (79:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >
     function create_default_slot$2(ctx) {
     	var t, each_1_anchor, current;
 
@@ -5674,7 +5678,7 @@ var app = (function () {
     			if (changed.transparent) cube_changes.transparent = ctx.transparent;
     			cube.$set(cube_changes);
 
-    			if (changed.faces || changed.GL || changed.vert || changed.frag || changed.blend || changed.depthTest || changed.transparent) {
+    			if (changed.labeled_sides || changed.faces || changed.GL || changed.vert || changed.frag || changed.blend || changed.depthTest || changed.transparent) {
     				each_value = ctx.faces;
 
     				let i;
@@ -5736,7 +5740,7 @@ var app = (function () {
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$2.name, type: "slot", source: "(83:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$2.name, type: "slot", source: "(79:0) <GL.Group   location={location}   lookAt={lookAt}   up={up}   rotation={rotation} >", ctx });
     	return block;
     }
 
@@ -5775,7 +5779,7 @@ var app = (function () {
     			if (changed.lookAt) gl_group_changes.lookAt = ctx.lookAt;
     			if (changed.up) gl_group_changes.up = ctx.up;
     			if (changed.rotation) gl_group_changes.rotation = ctx.rotation;
-    			if (changed.$$scope || changed.faces || changed.vert || changed.frag || changed.blend || changed.depthTest || changed.transparent || changed.radius || changed.scale || changed.uniforms) gl_group_changes.$$scope = { changed, ctx };
+    			if (changed.$$scope || changed.faces || changed.labeled_sides || changed.vert || changed.frag || changed.blend || changed.depthTest || changed.transparent || changed.radius || changed.scale || changed.uniforms) gl_group_changes.$$scope = { changed, ctx };
     			gl_group.$set(gl_group_changes);
     		},
 
@@ -5804,11 +5808,11 @@ var app = (function () {
     function instance$b($$self, $$props, $$invalidate) {
     	
 
-     let { radius = 0.1, margin = 0.2, label_radius = 0.06, label_uniforms = {}, location = undefined, lookAt = undefined, up = undefined, rotation = undefined, scale = 1, vert = undefined, frag = undefined, uniforms = undefined, blend = undefined, depthTest = undefined, transparent = undefined } = $$props;
+     let { radius = 0.1, margin = 0.2, label_radius = 0.06, label_uniforms = {}, labeled_sides = ['right', 'left', 'top', 'bottom', 'front', 'back'], location = undefined, lookAt = undefined, up = undefined, rotation = undefined, scale = 1, vert = undefined, frag = undefined, uniforms = undefined, blend = undefined, depthTest = undefined, transparent = undefined } = $$props;
 
-    	const writable_props = ['radius', 'margin', 'label_radius', 'label_uniforms', 'location', 'lookAt', 'up', 'rotation', 'scale', 'vert', 'frag', 'uniforms', 'blend', 'depthTest', 'transparent'];
+    	const writable_props = ['radius', 'margin', 'label_radius', 'label_uniforms', 'labeled_sides', 'location', 'lookAt', 'up', 'rotation', 'scale', 'vert', 'frag', 'uniforms', 'blend', 'depthTest', 'transparent'];
     	Object.keys($$props).forEach(key => {
-    		if (!writable_props.includes(key) && !key.startsWith('$$')) console_1.warn(`<LabeledCube> was created with unknown prop '${key}'`);
+    		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<LabeledCube> was created with unknown prop '${key}'`);
     	});
 
     	$$self.$set = $$props => {
@@ -5816,6 +5820,7 @@ var app = (function () {
     		if ('margin' in $$props) $$invalidate('margin', margin = $$props.margin);
     		if ('label_radius' in $$props) $$invalidate('label_radius', label_radius = $$props.label_radius);
     		if ('label_uniforms' in $$props) $$invalidate('label_uniforms', label_uniforms = $$props.label_uniforms);
+    		if ('labeled_sides' in $$props) $$invalidate('labeled_sides', labeled_sides = $$props.labeled_sides);
     		if ('location' in $$props) $$invalidate('location', location = $$props.location);
     		if ('lookAt' in $$props) $$invalidate('lookAt', lookAt = $$props.lookAt);
     		if ('up' in $$props) $$invalidate('up', up = $$props.up);
@@ -5830,7 +5835,7 @@ var app = (function () {
     	};
 
     	$$self.$capture_state = () => {
-    		return { radius, margin, label_radius, label_uniforms, location, lookAt, up, rotation, scale, vert, frag, uniforms, blend, depthTest, transparent, scale_array, w, h, d, faces };
+    		return { radius, margin, label_radius, label_uniforms, labeled_sides, location, lookAt, up, rotation, scale, vert, frag, uniforms, blend, depthTest, transparent, w, h, d, faces };
     	};
 
     	$$self.$inject_state = $$props => {
@@ -5838,6 +5843,7 @@ var app = (function () {
     		if ('margin' in $$props) $$invalidate('margin', margin = $$props.margin);
     		if ('label_radius' in $$props) $$invalidate('label_radius', label_radius = $$props.label_radius);
     		if ('label_uniforms' in $$props) $$invalidate('label_uniforms', label_uniforms = $$props.label_uniforms);
+    		if ('labeled_sides' in $$props) $$invalidate('labeled_sides', labeled_sides = $$props.labeled_sides);
     		if ('location' in $$props) $$invalidate('location', location = $$props.location);
     		if ('lookAt' in $$props) $$invalidate('lookAt', lookAt = $$props.lookAt);
     		if ('up' in $$props) $$invalidate('up', up = $$props.up);
@@ -5849,20 +5855,16 @@ var app = (function () {
     		if ('blend' in $$props) $$invalidate('blend', blend = $$props.blend);
     		if ('depthTest' in $$props) $$invalidate('depthTest', depthTest = $$props.depthTest);
     		if ('transparent' in $$props) $$invalidate('transparent', transparent = $$props.transparent);
-    		if ('scale_array' in $$props) $$invalidate('scale_array', scale_array = $$props.scale_array);
     		if ('w' in $$props) $$invalidate('w', w = $$props.w);
     		if ('h' in $$props) $$invalidate('h', h = $$props.h);
     		if ('d' in $$props) $$invalidate('d', d = $$props.d);
     		if ('faces' in $$props) $$invalidate('faces', faces = $$props.faces);
     	};
 
-    	let scale_array, w, h, d, faces;
+    	let w, h, d, faces;
 
-    	$$self.$$.update = ($$dirty = { scale: 1, scale_array: 1, w: 1, h: 1, margin: 1, d: 1, label_uniforms: 1, faces: 1 }) => {
-    		if ($$dirty.scale) { $$invalidate('scale_array', scale_array = typeof scale === 'number' ? [scale, scale, scale] : scale); }
-    		if ($$dirty.scale_array) { $$invalidate('w', w = scale_array[0]); }
-    		if ($$dirty.scale_array) { $$invalidate('h', h = scale_array[1]); }
-    		if ($$dirty.scale_array) { $$invalidate('d', d = scale_array[2]); }
+    	$$self.$$.update = ($$dirty = { scale: 1, w: 1, h: 1, margin: 1, d: 1, label_uniforms: 1 }) => {
+    		if ($$dirty.scale) { $$invalidate('w', [w, h, d] = typeof scale === 'number' ? [scale, scale, scale] : scale, w, $$invalidate('h', h), $$invalidate('scale', scale), $$invalidate('d', d), $$invalidate('scale', scale)); }
     		if ($$dirty.w || $$dirty.h || $$dirty.margin || $$dirty.d || $$dirty.label_uniforms) { $$invalidate('faces', faces = [
              {
                  name: 'right',
@@ -5910,7 +5912,6 @@ var app = (function () {
                  uniforms: label_uniforms.back
              }
          ]); }
-    		if ($$dirty.faces) { console.log(faces); }
     	};
 
     	return {
@@ -5918,6 +5919,7 @@ var app = (function () {
     		margin,
     		label_radius,
     		label_uniforms,
+    		labeled_sides,
     		location,
     		lookAt,
     		up,
@@ -5936,7 +5938,7 @@ var app = (function () {
     class LabeledCube extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$b, create_fragment$b, safe_not_equal, ["radius", "margin", "label_radius", "label_uniforms", "location", "lookAt", "up", "rotation", "scale", "vert", "frag", "uniforms", "blend", "depthTest", "transparent"]);
+    		init(this, options, instance$b, create_fragment$b, safe_not_equal, ["radius", "margin", "label_radius", "label_uniforms", "labeled_sides", "location", "lookAt", "up", "rotation", "scale", "vert", "frag", "uniforms", "blend", "depthTest", "transparent"]);
     		dispatch_dev("SvelteRegisterComponent", { component: this, tagName: "LabeledCube", options, id: create_fragment$b.name });
     	}
 
@@ -5969,6 +5971,14 @@ var app = (function () {
     	}
 
     	set label_uniforms(value) {
+    		throw new Error("<LabeledCube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get labeled_sides() {
+    		throw new Error("<LabeledCube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set labeled_sides(value) {
     		throw new Error("<LabeledCube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
@@ -6061,11 +6071,624 @@ var app = (function () {
     	}
     }
 
+    /* src/MagicCube.svelte generated by Svelte v3.12.1 */
+
+    function get_each_context_2(ctx, list, i) {
+    	const child_ctx = Object.create(ctx);
+    	child_ctx.column = list[i];
+    	return child_ctx;
+    }
+
+    function get_each_context_1$1(ctx, list, i) {
+    	const child_ctx = Object.create(ctx);
+    	child_ctx.row = list[i];
+    	return child_ctx;
+    }
+
+    function get_each_context$3(ctx, list, i) {
+    	const child_ctx = Object.create(ctx);
+    	child_ctx.face = list[i];
+    	return child_ctx;
+    }
+
+    // (69:8) {#each [0, 1, 2] as column}
+    function create_each_block_2(ctx) {
+    	var current;
+
+    	var labeledcube = new LabeledCube({
+    		props: {
+    		scale: 1/3,
+    		location: [(ctx.column - 1)/3, (1 - ctx.row)/3, 0],
+    		radius: ctx.radius/3,
+    		margin: ctx.margin/3,
+    		label_uniforms: ctx.label_uniforms,
+    		labeled_sides: ctx.cubesLabeledSides[ctx.face][ctx.row][ctx.column],
+    		uniforms: ctx.uniforms
+    	},
+    		$$inline: true
+    	});
+
+    	const block = {
+    		c: function create() {
+    			labeledcube.$$.fragment.c();
+    		},
+
+    		m: function mount(target, anchor) {
+    			mount_component(labeledcube, target, anchor);
+    			current = true;
+    		},
+
+    		p: noop,
+
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(labeledcube.$$.fragment, local);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(labeledcube.$$.fragment, local);
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_component(labeledcube, detaching);
+    		}
+    	};
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_2.name, type: "each", source: "(69:8) {#each [0, 1, 2] as column}", ctx });
+    	return block;
+    }
+
+    // (68:6) {#each [0, 1, 2] as row}
+    function create_each_block_1$1(ctx) {
+    	var each_1_anchor, current;
+
+    	let each_value_2 = [0, 1, 2];
+
+    	let each_blocks = [];
+
+    	for (let i = 0; i < 3; i += 1) {
+    		each_blocks[i] = create_each_block_2(get_each_context_2(ctx, each_value_2, i));
+    	}
+
+    	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
+
+    	const block = {
+    		c: function create() {
+    			for (let i = 0; i < 3; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			each_1_anchor = empty();
+    		},
+
+    		m: function mount(target, anchor) {
+    			for (let i = 0; i < 3; i += 1) {
+    				each_blocks[i].m(target, anchor);
+    			}
+
+    			insert_dev(target, each_1_anchor, anchor);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			if (changed.radius || changed.margin || changed.label_uniforms || changed.cubesLabeledSides || changed.uniforms) {
+    				each_value_2 = [0, 1, 2];
+
+    				let i;
+    				for (i = 0; i < each_value_2.length; i += 1) {
+    					const child_ctx = get_each_context_2(ctx, each_value_2, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(changed, child_ctx);
+    						transition_in(each_blocks[i], 1);
+    					} else {
+    						each_blocks[i] = create_each_block_2(child_ctx);
+    						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
+    						each_blocks[i].m(each_1_anchor.parentNode, each_1_anchor);
+    					}
+    				}
+
+    				group_outros();
+    				for (i = each_value_2.length; i < 3; i += 1) {
+    					out(i);
+    				}
+    				check_outros();
+    			}
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			for (let i = 0; i < 3; i += 1) {
+    				transition_in(each_blocks[i]);
+    			}
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			each_blocks = each_blocks.filter(Boolean);
+    			for (let i = 0; i < 3; i += 1) {
+    				transition_out(each_blocks[i]);
+    			}
+
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_each(each_blocks, detaching);
+
+    			if (detaching) {
+    				detach_dev(each_1_anchor);
+    			}
+    		}
+    	};
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_1$1.name, type: "each", source: "(68:6) {#each [0, 1, 2] as row}", ctx });
+    	return block;
+    }
+
+    // (64:4) <GL.Group       location = {facePositions[face].location}       rotation = {facePositions[face].rotation}     >
+    function create_default_slot_1(ctx) {
+    	var t, current;
+
+    	let each_value_1 = [0, 1, 2];
+
+    	let each_blocks = [];
+
+    	for (let i = 0; i < 3; i += 1) {
+    		each_blocks[i] = create_each_block_1$1(get_each_context_1$1(ctx, each_value_1, i));
+    	}
+
+    	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
+
+    	const block = {
+    		c: function create() {
+    			for (let i = 0; i < 3; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			t = space();
+    		},
+
+    		m: function mount(target, anchor) {
+    			for (let i = 0; i < 3; i += 1) {
+    				each_blocks[i].m(target, anchor);
+    			}
+
+    			insert_dev(target, t, anchor);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			if (changed.radius || changed.margin || changed.label_uniforms || changed.cubesLabeledSides || changed.uniforms) {
+    				each_value_1 = [0, 1, 2];
+
+    				let i;
+    				for (i = 0; i < each_value_1.length; i += 1) {
+    					const child_ctx = get_each_context_1$1(ctx, each_value_1, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(changed, child_ctx);
+    						transition_in(each_blocks[i], 1);
+    					} else {
+    						each_blocks[i] = create_each_block_1$1(child_ctx);
+    						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
+    						each_blocks[i].m(t.parentNode, t);
+    					}
+    				}
+
+    				group_outros();
+    				for (i = each_value_1.length; i < 3; i += 1) {
+    					out(i);
+    				}
+    				check_outros();
+    			}
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			for (let i = 0; i < 3; i += 1) {
+    				transition_in(each_blocks[i]);
+    			}
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			each_blocks = each_blocks.filter(Boolean);
+    			for (let i = 0; i < 3; i += 1) {
+    				transition_out(each_blocks[i]);
+    			}
+
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_each(each_blocks, detaching);
+
+    			if (detaching) {
+    				detach_dev(t);
+    			}
+    		}
+    	};
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_1.name, type: "slot", source: "(64:4) <GL.Group       location = {facePositions[face].location}       rotation = {facePositions[face].rotation}     >", ctx });
+    	return block;
+    }
+
+    // (63:2) {#each [0, 1, 2] as face}
+    function create_each_block$3(ctx) {
+    	var current;
+
+    	var gl_group = new Group({
+    		props: {
+    		location: ctx.facePositions[ctx.face].location,
+    		rotation: ctx.facePositions[ctx.face].rotation,
+    		$$slots: { default: [create_default_slot_1] },
+    		$$scope: { ctx }
+    	},
+    		$$inline: true
+    	});
+
+    	const block = {
+    		c: function create() {
+    			gl_group.$$.fragment.c();
+    		},
+
+    		m: function mount(target, anchor) {
+    			mount_component(gl_group, target, anchor);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			var gl_group_changes = {};
+    			if (changed.facePositions) gl_group_changes.location = ctx.facePositions[ctx.face].location;
+    			if (changed.facePositions) gl_group_changes.rotation = ctx.facePositions[ctx.face].rotation;
+    			if (changed.$$scope) gl_group_changes.$$scope = { changed, ctx };
+    			gl_group.$set(gl_group_changes);
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(gl_group.$$.fragment, local);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(gl_group.$$.fragment, local);
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_component(gl_group, detaching);
+    		}
+    	};
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$3.name, type: "each", source: "(63:2) {#each [0, 1, 2] as face}", ctx });
+    	return block;
+    }
+
+    // (55:0) <GL.Group   {location}   {lookAt}   {up}   {rotation}   {scale} >
+    function create_default_slot$3(ctx) {
+    	var each_1_anchor, current;
+
+    	let each_value = [0, 1, 2];
+
+    	let each_blocks = [];
+
+    	for (let i = 0; i < 3; i += 1) {
+    		each_blocks[i] = create_each_block$3(get_each_context$3(ctx, each_value, i));
+    	}
+
+    	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
+
+    	const block = {
+    		c: function create() {
+    			for (let i = 0; i < 3; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			each_1_anchor = empty();
+    		},
+
+    		m: function mount(target, anchor) {
+    			for (let i = 0; i < 3; i += 1) {
+    				each_blocks[i].m(target, anchor);
+    			}
+
+    			insert_dev(target, each_1_anchor, anchor);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			if (changed.facePositions || changed.radius || changed.margin || changed.label_uniforms || changed.cubesLabeledSides || changed.uniforms) {
+    				each_value = [0, 1, 2];
+
+    				let i;
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$3(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(changed, child_ctx);
+    						transition_in(each_blocks[i], 1);
+    					} else {
+    						each_blocks[i] = create_each_block$3(child_ctx);
+    						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
+    						each_blocks[i].m(each_1_anchor.parentNode, each_1_anchor);
+    					}
+    				}
+
+    				group_outros();
+    				for (i = each_value.length; i < 3; i += 1) {
+    					out(i);
+    				}
+    				check_outros();
+    			}
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			for (let i = 0; i < 3; i += 1) {
+    				transition_in(each_blocks[i]);
+    			}
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			each_blocks = each_blocks.filter(Boolean);
+    			for (let i = 0; i < 3; i += 1) {
+    				transition_out(each_blocks[i]);
+    			}
+
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_each(each_blocks, detaching);
+
+    			if (detaching) {
+    				detach_dev(each_1_anchor);
+    			}
+    		}
+    	};
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$3.name, type: "slot", source: "(55:0) <GL.Group   {location}   {lookAt}   {up}   {rotation}   {scale} >", ctx });
+    	return block;
+    }
+
+    function create_fragment$c(ctx) {
+    	var current;
+
+    	var gl_group = new Group({
+    		props: {
+    		location: ctx.location,
+    		lookAt: ctx.lookAt,
+    		up: ctx.up,
+    		rotation: ctx.rotation,
+    		scale: ctx.scale,
+    		$$slots: { default: [create_default_slot$3] },
+    		$$scope: { ctx }
+    	},
+    		$$inline: true
+    	});
+
+    	const block = {
+    		c: function create() {
+    			gl_group.$$.fragment.c();
+    		},
+
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+
+    		m: function mount(target, anchor) {
+    			mount_component(gl_group, target, anchor);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			var gl_group_changes = {};
+    			if (changed.location) gl_group_changes.location = ctx.location;
+    			if (changed.lookAt) gl_group_changes.lookAt = ctx.lookAt;
+    			if (changed.up) gl_group_changes.up = ctx.up;
+    			if (changed.rotation) gl_group_changes.rotation = ctx.rotation;
+    			if (changed.scale) gl_group_changes.scale = ctx.scale;
+    			if (changed.$$scope || changed.facePositions) gl_group_changes.$$scope = { changed, ctx };
+    			gl_group.$set(gl_group_changes);
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(gl_group.$$.fragment, local);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(gl_group.$$.fragment, local);
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_component(gl_group, detaching);
+    		}
+    	};
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_fragment$c.name, type: "component", source: "", ctx });
+    	return block;
+    }
+
+    function instance$c($$self, $$props, $$invalidate) {
+    	
+
+     // pass to Group
+     let { scale = 1, face_angle = 20, location = undefined, lookAt = undefined, up = undefined, rotation = undefined } = $$props;
+
+     const radius = 0.06,
+       margin = 0.08,
+       uniforms = { color: 0x101010, specularity: 0.4, alpha: 1.0 },
+       label_uniforms = {
+           front:  {color: 0xf1f5fe, specularity: 0.3}, // white
+           left:   {color: 0x8080ff, specularity: 0.3}, // blue
+           top:    {color: 0xd4001e, specularity: 0.3}, // red
+           right:  {color: 0x008452, specularity: 0.3}, // green
+           bottom: {color: 0xf46c3a, specularity: 0.3}, // orange
+           back:   {color: 0xf7e42d, specularity: 0.3}  // yellow
+       },
+       cubesLabeledSides = [
+           [
+               [['front', 'left', 'top'], ['front', 'top'], ['front', 'top', 'right']],
+               [['left', 'front'], ['front'], ['front', 'right']],
+               [['front', 'left', 'bottom'], ['front', 'bottom'], ['front', 'bottom', 'right']]
+           ],
+           [
+               [['left', 'top'], ['top'], ['top', 'right']],
+               [['left'], [], ['right']],
+               [['left', 'bottom'], ['bottom'], ['bottom', 'right']]
+           ],
+           [
+               [['back', 'left', 'top'], ['back', 'top'], ['back', 'top', 'right']],
+               [['left', 'back'], ['back'], ['back', 'right']],
+               [['back', 'left', 'bottom'], ['back', 'bottom'], ['back', 'bottom', 'right']]
+           ]
+       ];
+
+    	const writable_props = ['scale', 'face_angle', 'location', 'lookAt', 'up', 'rotation'];
+    	Object.keys($$props).forEach(key => {
+    		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<MagicCube> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$set = $$props => {
+    		if ('scale' in $$props) $$invalidate('scale', scale = $$props.scale);
+    		if ('face_angle' in $$props) $$invalidate('face_angle', face_angle = $$props.face_angle);
+    		if ('location' in $$props) $$invalidate('location', location = $$props.location);
+    		if ('lookAt' in $$props) $$invalidate('lookAt', lookAt = $$props.lookAt);
+    		if ('up' in $$props) $$invalidate('up', up = $$props.up);
+    		if ('rotation' in $$props) $$invalidate('rotation', rotation = $$props.rotation);
+    	};
+
+    	$$self.$capture_state = () => {
+    		return { scale, face_angle, location, lookAt, up, rotation, facePositions };
+    	};
+
+    	$$self.$inject_state = $$props => {
+    		if ('scale' in $$props) $$invalidate('scale', scale = $$props.scale);
+    		if ('face_angle' in $$props) $$invalidate('face_angle', face_angle = $$props.face_angle);
+    		if ('location' in $$props) $$invalidate('location', location = $$props.location);
+    		if ('lookAt' in $$props) $$invalidate('lookAt', lookAt = $$props.lookAt);
+    		if ('up' in $$props) $$invalidate('up', up = $$props.up);
+    		if ('rotation' in $$props) $$invalidate('rotation', rotation = $$props.rotation);
+    		if ('facePositions' in $$props) $$invalidate('facePositions', facePositions = $$props.facePositions);
+    	};
+
+    	let facePositions;
+
+    	$$self.$$.update = ($$dirty = { face_angle: 1 }) => {
+    		if ($$dirty.face_angle) { $$invalidate('facePositions', facePositions = [
+             {
+                 location: [0, 0, 1/3],
+                 rotation: [0, 0, face_angle]
+             },
+             {
+                 location: [0, 0, 0]
+             },
+             {
+                 location: [0, 0, -1/3]
+             }
+         ]); }
+    	};
+
+    	return {
+    		scale,
+    		face_angle,
+    		location,
+    		lookAt,
+    		up,
+    		rotation,
+    		radius,
+    		margin,
+    		uniforms,
+    		label_uniforms,
+    		cubesLabeledSides,
+    		facePositions
+    	};
+    }
+
+    class MagicCube extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$c, create_fragment$c, safe_not_equal, ["scale", "face_angle", "location", "lookAt", "up", "rotation"]);
+    		dispatch_dev("SvelteRegisterComponent", { component: this, tagName: "MagicCube", options, id: create_fragment$c.name });
+    	}
+
+    	get scale() {
+    		throw new Error("<MagicCube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set scale(value) {
+    		throw new Error("<MagicCube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get face_angle() {
+    		throw new Error("<MagicCube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set face_angle(value) {
+    		throw new Error("<MagicCube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get location() {
+    		throw new Error("<MagicCube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set location(value) {
+    		throw new Error("<MagicCube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get lookAt() {
+    		throw new Error("<MagicCube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set lookAt(value) {
+    		throw new Error("<MagicCube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get up() {
+    		throw new Error("<MagicCube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set up(value) {
+    		throw new Error("<MagicCube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get rotation() {
+    		throw new Error("<MagicCube>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set rotation(value) {
+    		throw new Error("<MagicCube>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
     /* src/App.svelte generated by Svelte v3.12.1 */
 
     const file$1 = "src/App.svelte";
 
-    // (58:2) <GL.OrbitControls maxPolarAngle={Math.PI} let:location>
+    function get_each_context$4(ctx, list, i) {
+    	const child_ctx = Object.create(ctx);
+    	child_ctx.cubeType = list[i];
+    	return child_ctx;
+    }
+
+    // (70:2) <GL.OrbitControls maxPolarAngle={Math.PI} let:location>
     function create_default_slot_2(ctx) {
     	var current;
 
@@ -6111,12 +6734,63 @@ var app = (function () {
     			destroy_component(gl_perspectivecamera, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_2.name, type: "slot", source: "(58:2) <GL.OrbitControls maxPolarAngle={Math.PI} let:location>", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_2.name, type: "slot", source: "(70:2) <GL.OrbitControls maxPolarAngle={Math.PI} let:location>", ctx });
     	return block;
     }
 
-    // (84:2) {:else}
+    // (104:4) {:else}
     function create_else_block(ctx) {
+    	var current;
+
+    	var magiccube = new MagicCube({
+    		props: {
+    		location: [0, ctx.h/2 * 2, 0],
+    		rotation: [0,20,0],
+    		scale: [ctx.w * 2,ctx.h * 2,ctx.d * 2],
+    		face_angle: ctx.face.angle
+    	},
+    		$$inline: true
+    	});
+
+    	const block = {
+    		c: function create() {
+    			magiccube.$$.fragment.c();
+    		},
+
+    		m: function mount(target, anchor) {
+    			mount_component(magiccube, target, anchor);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			var magiccube_changes = {};
+    			if (changed.h) magiccube_changes.location = [0, ctx.h/2 * 2, 0];
+    			if (changed.w || changed.h || changed.d) magiccube_changes.scale = [ctx.w * 2,ctx.h * 2,ctx.d * 2];
+    			magiccube.$set(magiccube_changes);
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(magiccube.$$.fragment, local);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(magiccube.$$.fragment, local);
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_component(magiccube, detaching);
+    		}
+    	};
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_else_block.name, type: "else", source: "(104:4) {:else}", ctx });
+    	return block;
+    }
+
+    // (96:38) 
+    function create_if_block_2(ctx) {
     	var current;
 
     	var cube = new Cube({
@@ -6165,11 +6839,11 @@ var app = (function () {
     			destroy_component(cube, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_else_block.name, type: "else", source: "(84:2) {:else}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block_2.name, type: "if", source: "(96:38) ", ctx });
     	return block;
     }
 
-    // (74:2) {#if show_labeled}
+    // (86:2) {#if showCubeType === 'LabeledCube'}
     function create_if_block_1(ctx) {
     	var current;
 
@@ -6220,11 +6894,11 @@ var app = (function () {
     			destroy_component(labeledcube, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block_1.name, type: "if", source: "(74:2) {#if show_labeled}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block_1.name, type: "if", source: "(86:2) {#if showCubeType === 'LabeledCube'}", ctx });
     	return block;
     }
 
-    // (95:4) {#if show_light}
+    // (114:4) {#if show_light}
     function create_if_block$2(ctx) {
     	var current;
 
@@ -6270,12 +6944,12 @@ var app = (function () {
     			destroy_component(gl_mesh, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$2.name, type: "if", source: "(95:4) {#if show_light}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$2.name, type: "if", source: "(114:4) {#if show_light}", ctx });
     	return block;
     }
 
-    // (94:2) <GL.Group location={[light.x,light.y,light.z]}>
-    function create_default_slot_1(ctx) {
+    // (113:2) <GL.Group location={[light.x,light.y,light.z]}>
+    function create_default_slot_1$1(ctx) {
     	var t, current;
 
     	var if_block = (ctx.show_light) && create_if_block$2(ctx);
@@ -6352,12 +7026,12 @@ var app = (function () {
     			destroy_component(gl_pointlight, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_1.name, type: "slot", source: "(94:2) <GL.Group location={[light.x,light.y,light.z]}>", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot_1$1.name, type: "slot", source: "(113:2) <GL.Group location={[light.x,light.y,light.z]}>", ctx });
     	return block;
     }
 
-    // (55:0) <GL.Scene>
-    function create_default_slot$3(ctx) {
+    // (67:0) <GL.Scene>
+    function create_default_slot$4(ctx) {
     	var t0, t1, t2, t3, t4, current_block_type_index, if_block, t5, current;
 
     	var gl_target = new Target({
@@ -6402,14 +7076,16 @@ var app = (function () {
 
     	var if_block_creators = [
     		create_if_block_1,
+    		create_if_block_2,
     		create_else_block
     	];
 
     	var if_blocks = [];
 
     	function select_block_type(changed, ctx) {
-    		if (ctx.show_labeled) return 0;
-    		return 1;
+    		if (ctx.showCubeType === 'LabeledCube') return 0;
+    		if (ctx.showCubeType === 'Cube') return 1;
+    		return 2;
     	}
 
     	current_block_type_index = select_block_type(null, ctx);
@@ -6418,7 +7094,7 @@ var app = (function () {
     	var gl_group = new Group({
     		props: {
     		location: [ctx.light.x,ctx.light.y,ctx.light.z],
-    		$$slots: { default: [create_default_slot_1] },
+    		$$slots: { default: [create_default_slot_1$1] },
     		$$scope: { ctx }
     	},
     		$$inline: true
@@ -6563,20 +7239,75 @@ var app = (function () {
     			destroy_component(gl_group, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$3.name, type: "slot", source: "(55:0) <GL.Scene>", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$4.name, type: "slot", source: "(67:0) <GL.Scene>", ctx });
     	return block;
     }
 
-    function create_fragment$c(ctx) {
-    	var t0, div, label0, input0, t1, t2, t3, t4, label1, input1, t5, t6, t7, t8, label2, input2, t9, t10, label3, input3, t11, t12, label4, input4, t13, t14, label5, input5, t15, t16, t17, t18, label6, input6, t19, t20, t21, t22, label7, input7, t23, t24, t25, t26, label8, input8, t27, t28, t29, current, dispose;
+    // (143:2) {#each ['Cube', 'LabeledCube', 'MagicCube'] as cubeType}
+    function create_each_block$4(ctx) {
+    	var label, input, t0, t1, dispose;
+
+    	const block = {
+    		c: function create() {
+    			label = element("label");
+    			input = element("input");
+    			t0 = space();
+    			t1 = text(ctx.cubeType);
+    			ctx.$$binding_groups[0].push(input);
+    			attr_dev(input, "type", "radio");
+    			input.__value = ctx.cubeType;
+    			input.value = input.__value;
+    			attr_dev(input, "class", "svelte-h1ar7z");
+    			add_location(input, file$1, 144, 6, 3724);
+    			add_location(label, file$1, 143, 4, 3710);
+    			dispose = listen_dev(input, "change", ctx.input_change_handler);
+    		},
+
+    		m: function mount(target, anchor) {
+    			insert_dev(target, label, anchor);
+    			append_dev(label, input);
+
+    			input.checked = input.__value === ctx.showCubeType;
+
+    			append_dev(label, t0);
+    			append_dev(label, t1);
+    		},
+
+    		p: function update(changed, ctx) {
+    			if (changed.showCubeType) input.checked = input.__value === ctx.showCubeType;
+    		},
+
+    		d: function destroy(detaching) {
+    			if (detaching) {
+    				detach_dev(label);
+    			}
+
+    			ctx.$$binding_groups[0].splice(ctx.$$binding_groups[0].indexOf(input), 1);
+    			dispose();
+    		}
+    	};
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$4.name, type: "each", source: "(143:2) {#each ['Cube', 'LabeledCube', 'MagicCube'] as cubeType}", ctx });
+    	return block;
+    }
+
+    function create_fragment$d(ctx) {
+    	var t0, div, label0, input0, t1, t2, t3, t4, label1, input1, t5, t6, t7, t8, label2, input2, t9, t10, label3, input3, t11, t12, t13, label4, input4, t14, t15, t16, t17, label5, input5, t18, t19, t20, t21, label6, input6, t22, t23, t24, t25, label7, input7, t26, t27, t28, current, dispose;
 
     	var gl_scene = new Scene({
     		props: {
-    		$$slots: { default: [create_default_slot$3] },
+    		$$slots: { default: [create_default_slot$4] },
     		$$scope: { ctx }
     	},
     		$$inline: true
     	});
+
+    	let each_value = ['Cube', 'LabeledCube', 'MagicCube'];
+
+    	let each_blocks = [];
+
+    	for (let i = 0; i < 3; i += 1) {
+    		each_blocks[i] = create_each_block$4(get_each_context$4(ctx, each_value, i));
+    	}
 
     	const block = {
     		c: function create() {
@@ -6603,91 +7334,89 @@ var app = (function () {
     			input3 = element("input");
     			t11 = text(" Move light?");
     			t12 = space();
+
+    			for (let i = 0; i < 3; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			t13 = space();
     			label4 = element("label");
     			input4 = element("input");
-    			t13 = text(" Labeled?");
-    			t14 = space();
+    			t14 = text(" width (");
+    			t15 = text(ctx.w);
+    			t16 = text(")");
+    			t17 = space();
     			label5 = element("label");
     			input5 = element("input");
-    			t15 = text(" width (");
-    			t16 = text(ctx.w);
-    			t17 = text(")");
-    			t18 = space();
+    			t18 = text(" height (");
+    			t19 = text(ctx.h);
+    			t20 = text(")");
+    			t21 = space();
     			label6 = element("label");
     			input6 = element("input");
-    			t19 = text(" height (");
-    			t20 = text(ctx.h);
-    			t21 = text(")");
-    			t22 = space();
+    			t22 = text(" depth (");
+    			t23 = text(ctx.d);
+    			t24 = text(")");
+    			t25 = space();
     			label7 = element("label");
     			input7 = element("input");
-    			t23 = text(" depth (");
-    			t24 = text(ctx.d);
-    			t25 = text(")");
-    			t26 = space();
-    			label8 = element("label");
-    			input8 = element("input");
-    			t27 = text(" radius (");
-    			t28 = text(ctx.radius);
-    			t29 = text(")");
+    			t26 = text(" radius (");
+    			t27 = text(ctx.radius);
+    			t28 = text(")");
     			attr_dev(input0, "type", "color");
     			set_style(input0, "height", "40px");
-    			add_location(input0, file$1, 112, 4, 2721);
-    			add_location(label0, file$1, 111, 2, 2709);
+    			add_location(input0, file$1, 131, 4, 3269);
+    			add_location(label0, file$1, 130, 2, 3257);
     			attr_dev(input1, "type", "color");
     			set_style(input1, "height", "40px");
-    			add_location(input1, file$1, 115, 4, 2821);
-    			add_location(label1, file$1, 114, 2, 2809);
+    			add_location(input1, file$1, 134, 4, 3369);
+    			add_location(label1, file$1, 133, 2, 3357);
     			attr_dev(input2, "type", "checkbox");
-    			add_location(input2, file$1, 118, 4, 2935);
-    			add_location(label2, file$1, 117, 2, 2923);
+    			add_location(input2, file$1, 137, 4, 3483);
+    			add_location(label2, file$1, 136, 2, 3471);
     			attr_dev(input3, "type", "checkbox");
-    			add_location(input3, file$1, 121, 4, 3024);
-    			add_location(label3, file$1, 120, 2, 3012);
-    			attr_dev(input4, "type", "checkbox");
-    			add_location(input4, file$1, 124, 4, 3113);
-    			add_location(label4, file$1, 123, 2, 3101);
+    			add_location(input3, file$1, 140, 4, 3572);
+    			add_location(label3, file$1, 139, 2, 3560);
+    			attr_dev(input4, "type", "range");
+    			attr_dev(input4, "min", 0.1);
+    			attr_dev(input4, "max", 5);
+    			attr_dev(input4, "step", 0.1);
+    			add_location(input4, file$1, 148, 4, 3838);
+    			add_location(label4, file$1, 147, 2, 3826);
     			attr_dev(input5, "type", "range");
     			attr_dev(input5, "min", 0.1);
     			attr_dev(input5, "max", 5);
     			attr_dev(input5, "step", 0.1);
-    			add_location(input5, file$1, 127, 4, 3201);
-    			add_location(label5, file$1, 126, 2, 3189);
+    			add_location(input5, file$1, 152, 4, 3941);
+    			add_location(label5, file$1, 151, 2, 3929);
     			attr_dev(input6, "type", "range");
     			attr_dev(input6, "min", 0.1);
     			attr_dev(input6, "max", 5);
     			attr_dev(input6, "step", 0.1);
-    			add_location(input6, file$1, 131, 4, 3304);
-    			add_location(label6, file$1, 130, 2, 3292);
+    			add_location(input6, file$1, 156, 4, 4045);
+    			add_location(label6, file$1, 155, 2, 4033);
     			attr_dev(input7, "type", "range");
-    			attr_dev(input7, "min", 0.1);
-    			attr_dev(input7, "max", 5);
-    			attr_dev(input7, "step", 0.1);
-    			add_location(input7, file$1, 135, 4, 3408);
-    			add_location(label7, file$1, 134, 2, 3396);
-    			attr_dev(input8, "type", "range");
-    			attr_dev(input8, "min", 0.01);
-    			attr_dev(input8, "max", 0.5);
-    			attr_dev(input8, "step", 0.01);
-    			add_location(input8, file$1, 139, 4, 3511);
-    			add_location(label8, file$1, 138, 2, 3499);
-    			attr_dev(div, "class", "controls svelte-py1ens");
-    			add_location(div, file$1, 110, 0, 2684);
+    			attr_dev(input7, "min", 0.01);
+    			attr_dev(input7, "max", 0.5);
+    			attr_dev(input7, "step", 0.01);
+    			add_location(input7, file$1, 160, 4, 4148);
+    			add_location(label7, file$1, 159, 2, 4136);
+    			attr_dev(div, "class", "controls svelte-h1ar7z");
+    			add_location(div, file$1, 129, 0, 3232);
 
     			dispose = [
     				listen_dev(input0, "input", ctx.input0_input_handler),
     				listen_dev(input1, "input", ctx.input1_input_handler),
     				listen_dev(input2, "change", ctx.input2_change_handler),
     				listen_dev(input3, "change", ctx.input3_change_handler),
-    				listen_dev(input4, "change", ctx.input4_change_handler),
+    				listen_dev(input4, "change", ctx.input4_change_input_handler),
+    				listen_dev(input4, "input", ctx.input4_change_input_handler),
     				listen_dev(input5, "change", ctx.input5_change_input_handler),
     				listen_dev(input5, "input", ctx.input5_change_input_handler),
     				listen_dev(input6, "change", ctx.input6_change_input_handler),
     				listen_dev(input6, "input", ctx.input6_change_input_handler),
     				listen_dev(input7, "change", ctx.input7_change_input_handler),
-    				listen_dev(input7, "input", ctx.input7_change_input_handler),
-    				listen_dev(input8, "change", ctx.input8_change_input_handler),
-    				listen_dev(input8, "input", ctx.input8_change_input_handler)
+    				listen_dev(input7, "input", ctx.input7_change_input_handler)
     			];
     		},
 
@@ -6731,54 +7460,53 @@ var app = (function () {
 
     			append_dev(label3, t11);
     			append_dev(div, t12);
+
+    			for (let i = 0; i < 3; i += 1) {
+    				each_blocks[i].m(div, null);
+    			}
+
+    			append_dev(div, t13);
     			append_dev(div, label4);
     			append_dev(label4, input4);
 
-    			input4.checked = ctx.show_labeled;
+    			set_input_value(input4, ctx.w);
 
-    			append_dev(label4, t13);
-    			append_dev(div, t14);
+    			append_dev(label4, t14);
+    			append_dev(label4, t15);
+    			append_dev(label4, t16);
+    			append_dev(div, t17);
     			append_dev(div, label5);
     			append_dev(label5, input5);
 
-    			set_input_value(input5, ctx.w);
+    			set_input_value(input5, ctx.h);
 
-    			append_dev(label5, t15);
-    			append_dev(label5, t16);
-    			append_dev(label5, t17);
-    			append_dev(div, t18);
+    			append_dev(label5, t18);
+    			append_dev(label5, t19);
+    			append_dev(label5, t20);
+    			append_dev(div, t21);
     			append_dev(div, label6);
     			append_dev(label6, input6);
 
-    			set_input_value(input6, ctx.h);
+    			set_input_value(input6, ctx.d);
 
-    			append_dev(label6, t19);
-    			append_dev(label6, t20);
-    			append_dev(label6, t21);
-    			append_dev(div, t22);
+    			append_dev(label6, t22);
+    			append_dev(label6, t23);
+    			append_dev(label6, t24);
+    			append_dev(div, t25);
     			append_dev(div, label7);
     			append_dev(label7, input7);
 
-    			set_input_value(input7, ctx.d);
+    			set_input_value(input7, ctx.radius);
 
-    			append_dev(label7, t23);
-    			append_dev(label7, t24);
-    			append_dev(label7, t25);
-    			append_dev(div, t26);
-    			append_dev(div, label8);
-    			append_dev(label8, input8);
-
-    			set_input_value(input8, ctx.radius);
-
-    			append_dev(label8, t27);
-    			append_dev(label8, t28);
-    			append_dev(label8, t29);
+    			append_dev(label7, t26);
+    			append_dev(label7, t27);
+    			append_dev(label7, t28);
     			current = true;
     		},
 
     		p: function update(changed, ctx) {
     			var gl_scene_changes = {};
-    			if (changed.$$scope || changed.light || changed.light_color || changed.show_light || changed.show_labeled || changed.h || changed.w || changed.d || changed.radius || changed.color) gl_scene_changes.$$scope = { changed, ctx };
+    			if (changed.$$scope || changed.light || changed.light_color || changed.show_light || changed.showCubeType || changed.h || changed.w || changed.d || changed.radius || changed.color) gl_scene_changes.$$scope = { changed, ctx };
     			gl_scene.$set(gl_scene_changes);
 
     			if (changed.color) set_input_value(input0, ctx.color);
@@ -6795,29 +7523,50 @@ var app = (function () {
 
     			if (changed.show_light) input2.checked = ctx.show_light;
     			if (changed.move_light) input3.checked = ctx.move_light;
-    			if (changed.show_labeled) input4.checked = ctx.show_labeled;
-    			if (changed.w) set_input_value(input5, ctx.w);
+
+    			if (changed.showCubeType) {
+    				each_value = ['Cube', 'LabeledCube', 'MagicCube'];
+
+    				let i;
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$4(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(changed, child_ctx);
+    					} else {
+    						each_blocks[i] = create_each_block$4(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(div, t13);
+    					}
+    				}
+
+    				for (; i < 3; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+    			}
+
+    			if (changed.w) set_input_value(input4, ctx.w);
 
     			if (!current || changed.w) {
-    				set_data_dev(t16, ctx.w);
+    				set_data_dev(t15, ctx.w);
     			}
 
-    			if (changed.h) set_input_value(input6, ctx.h);
+    			if (changed.h) set_input_value(input5, ctx.h);
 
     			if (!current || changed.h) {
-    				set_data_dev(t20, ctx.h);
+    				set_data_dev(t19, ctx.h);
     			}
 
-    			if (changed.d) set_input_value(input7, ctx.d);
+    			if (changed.d) set_input_value(input6, ctx.d);
 
     			if (!current || changed.d) {
-    				set_data_dev(t24, ctx.d);
+    				set_data_dev(t23, ctx.d);
     			}
 
-    			if (changed.radius) set_input_value(input8, ctx.radius);
+    			if (changed.radius) set_input_value(input7, ctx.radius);
 
     			if (!current || changed.radius) {
-    				set_data_dev(t28, ctx.radius);
+    				set_data_dev(t27, ctx.radius);
     			}
     		},
 
@@ -6841,16 +7590,24 @@ var app = (function () {
     				detach_dev(div);
     			}
 
+    			destroy_each(each_blocks, detaching);
+
     			run_all(dispose);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_fragment$c.name, type: "component", source: "", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_fragment$d.name, type: "component", source: "", ctx });
     	return block;
     }
 
     let margin = 0.08;
 
-    function instance$c($$self, $$props, $$invalidate) {
+    let show_labeled = false;
+
+    let face_angle = 30;
+
+    let rotate_face = true;
+
+    function instance$d($$self, $$props, $$invalidate) {
     	
 
      let { color = '#ff3e00', name = 'App' } = $$props;
@@ -6860,8 +7617,8 @@ var app = (function () {
      let radius = 0.06;
      let move_light = false;
      let show_light = false;
-     let show_labeled = false;
      let light_color = '#ffffff';
+     let showCubeType = 'MagicCube';
 
      const from_hex = hex => parseInt(hex.slice(1), 16);
 
@@ -6880,12 +7637,15 @@ var app = (function () {
          back:   {color: 0xf7e42d, specularity: 0.3}  // yellow
      };
 
+     const face = {
+         angle: 20
+     };
+
      onMount(() => {
          let frame;
 
          const loop = () => {
        frame = requestAnimationFrame(loop);
-
              if (move_light) {
                  $$invalidate('light', light.x = 3 * Math.sin(Date.now() * 0.001), light);
                  $$invalidate('light', light.y = 2.5 + 2 * Math.sin(Date.now() * 0.0004), light);
@@ -6902,6 +7662,8 @@ var app = (function () {
     	Object.keys($$props).forEach(key => {
     		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<App> was created with unknown prop '${key}'`);
     	});
+
+    	const $$binding_groups = [[]];
 
     	function input0_input_handler() {
     		color = this.value;
@@ -6923,27 +7685,27 @@ var app = (function () {
     		$$invalidate('move_light', move_light);
     	}
 
-    	function input4_change_handler() {
-    		show_labeled = this.checked;
-    		$$invalidate('show_labeled', show_labeled);
+    	function input_change_handler() {
+    		showCubeType = this.__value;
+    		$$invalidate('showCubeType', showCubeType);
     	}
 
-    	function input5_change_input_handler() {
+    	function input4_change_input_handler() {
     		w = to_number(this.value);
     		$$invalidate('w', w);
     	}
 
-    	function input6_change_input_handler() {
+    	function input5_change_input_handler() {
     		h = to_number(this.value);
     		$$invalidate('h', h);
     	}
 
-    	function input7_change_input_handler() {
+    	function input6_change_input_handler() {
     		d = to_number(this.value);
     		$$invalidate('d', d);
     	}
 
-    	function input8_change_input_handler() {
+    	function input7_change_input_handler() {
     		radius = to_number(this.value);
     		$$invalidate('radius', radius);
     	}
@@ -6954,7 +7716,7 @@ var app = (function () {
     	};
 
     	$$self.$capture_state = () => {
-    		return { color, name, w, h, d, radius, margin, move_light, show_light, show_labeled, light_color };
+    		return { color, name, w, h, d, radius, margin, move_light, show_light, show_labeled, light_color, showCubeType, face_angle, rotate_face };
     	};
 
     	$$self.$inject_state = $$props => {
@@ -6967,8 +7729,11 @@ var app = (function () {
     		if ('margin' in $$props) $$invalidate('margin', margin = $$props.margin);
     		if ('move_light' in $$props) $$invalidate('move_light', move_light = $$props.move_light);
     		if ('show_light' in $$props) $$invalidate('show_light', show_light = $$props.show_light);
-    		if ('show_labeled' in $$props) $$invalidate('show_labeled', show_labeled = $$props.show_labeled);
+    		if ('show_labeled' in $$props) show_labeled = $$props.show_labeled;
     		if ('light_color' in $$props) $$invalidate('light_color', light_color = $$props.light_color);
+    		if ('showCubeType' in $$props) $$invalidate('showCubeType', showCubeType = $$props.showCubeType);
+    		if ('face_angle' in $$props) face_angle = $$props.face_angle;
+    		if ('rotate_face' in $$props) rotate_face = $$props.rotate_face;
     	};
 
     	return {
@@ -6980,29 +7745,31 @@ var app = (function () {
     		radius,
     		move_light,
     		show_light,
-    		show_labeled,
     		light_color,
+    		showCubeType,
     		from_hex,
     		light,
     		label_uniforms,
+    		face,
     		Math,
     		input0_input_handler,
     		input1_input_handler,
     		input2_change_handler,
     		input3_change_handler,
-    		input4_change_handler,
+    		input_change_handler,
+    		input4_change_input_handler,
     		input5_change_input_handler,
     		input6_change_input_handler,
     		input7_change_input_handler,
-    		input8_change_input_handler
+    		$$binding_groups
     	};
     }
 
     class App extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$c, create_fragment$c, safe_not_equal, ["color", "name"]);
-    		dispatch_dev("SvelteRegisterComponent", { component: this, tagName: "App", options, id: create_fragment$c.name });
+    		init(this, options, instance$d, create_fragment$d, safe_not_equal, ["color", "name"]);
+    		dispatch_dev("SvelteRegisterComponent", { component: this, tagName: "App", options, id: create_fragment$d.name });
     	}
 
     	get color() {

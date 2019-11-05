@@ -18,10 +18,7 @@
  export let depthTest = undefined;
  export let transparent = undefined;
 
- $: scale_array = typeof scale === 'number' ? [scale, scale, scale] : scale;
- $: w = scale_array[0];
- $: h = scale_array[1];
- $: d = scale_array[2];
+ $: [w, h, d] = typeof scale === 'number' ? [scale, scale, scale] : scale;
 
  $: faces = [
      {
