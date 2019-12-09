@@ -30,11 +30,11 @@
 
  const label_uniforms = {
      front:  {color: 0xf1f5fe, specularity: 0.3}, // white
-     left:   {color: 0x8080ff, specularity: 0.3}, // blue
+     left:   {color: 0x2040ff, specularity: 0.3}, // blue
      top:    {color: 0xd4001e, specularity: 0.3}, // red
      right:  {color: 0x008452, specularity: 0.3}, // green
-     bottom: {color: 0xf46c3a, specularity: 0.3}, // orange
-     back:   {color: 0xf7e42d, specularity: 0.3}  // yellow
+     bottom: {color: 0xffa800, specularity: 0.3}, // orange
+     back:   {color: 0xf7e400, specularity: 0.3}  // yellow
  };
 
  const face = {
@@ -48,8 +48,8 @@
      const loop = () => {
    frame = requestAnimationFrame(loop);
          if (rotate_face) {
-//             face.angle = face.angle + 0.001;
-//             face_angle = 3 * Math.sin(Date.now() * 0.001);
+             face.angle = face.angle + 1;
+//             face_angle = 3 * Math.sin(Date.now() * 0.1);
          }
          if (move_light) {
              light.x = 3 * Math.sin(Date.now() * 0.001);
@@ -71,7 +71,7 @@
     <GL.PerspectiveCamera {location} lookAt="center" near={0.01} far={1000}/>
   </GL.OrbitControls>
 
-  <GL.AmbientLight intensity={0.5}/>
+  <GL.AmbientLight intensity={0.7}/>
   <GL.DirectionalLight direction={[-1,-1,-1]} intensity={0.5}/>
 
   <!-- floor -->
@@ -102,8 +102,9 @@
       uniforms={{ color: from_hex(color), alpha: 1.0 }}
     />
     {:else}
+    <GL.AmbientLight intensity={1.0}/>
     <MagicCube
-        location={[0, h/2 * 2, 0]}
+        location={[0, h/2 * 2.8, 0]}
         rotation={[0,20,0]}
         scale={[w * 2,h * 2,d * 2]}
         face_angle={face.angle}
